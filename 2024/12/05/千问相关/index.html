@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>千问相关 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="模型结构Qwen2-1.5B 模型结构123456789101112131415161718192021222324252627Qwen2ForCausalLM(  (model): Qwen2Model(    (embed_tokens): Embedding(151936, 1536)    (layers): ModuleList(      (0-27): 28 x Qwen2Decod">
+<meta property="og:type" content="article">
+<meta property="og:title" content="千问相关">
+<meta property="og:url" content="http://example.com/2024/12/05/%E5%8D%83%E9%97%AE%E7%9B%B8%E5%85%B3/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="模型结构Qwen2-1.5B 模型结构123456789101112131415161718192021222324252627Qwen2ForCausalLM(  (model): Qwen2Model(    (embed_tokens): Embedding(151936, 1536)    (layers): ModuleList(      (0-27): 28 x Qwen2Decod">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-12-05T14:19:29.000Z">
+<meta property="article:modified_time" content="2024-12-05T19:13:18.193Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-千问相关" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/12/05/%E5%8D%83%E9%97%AE%E7%9B%B8%E5%85%B3/" class="article-date">
+  <time class="dt-published" datetime="2024-12-05T14:19:29.000Z" itemprop="datePublished">2024-12-05</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      千问相关
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="模型结构"><a href="#模型结构" class="headerlink" title="模型结构"></a>模型结构</h1><h2 id="Qwen2-1-5B-模型结构"><a href="#Qwen2-1-5B-模型结构" class="headerlink" title="Qwen2-1.5B 模型结构"></a><code>Qwen2-1.5B</code> 模型结构</h2><figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Qwen2ForCausalLM</span>(</span><br><span class="line">  (model): <span class="built_in">Qwen2Model</span>(</span><br><span class="line">    (embed_tokens): <span class="built_in">Embedding</span>(<span class="number">151936</span>, <span class="number">1536</span>)</span><br><span class="line">    (layers): <span class="built_in">ModuleList</span>(</span><br><span class="line">      (<span class="number">0</span>-<span class="number">27</span>): <span class="number">28</span> x <span class="built_in">Qwen2DecoderLayer</span>(</span><br><span class="line">        (self_attn): <span class="built_in">Qwen2SdpaAttention</span>(</span><br><span class="line">          (q_proj): <span class="built_in">Linear</span>(in_features=<span class="number">1536</span>, out_features=<span class="number">1536</span>, bias=True)</span><br><span class="line">          (k_proj): <span class="built_in">Linear</span>(in_features=<span class="number">1536</span>, out_features=<span class="number">256</span>, bias=True)</span><br><span class="line">          (v_proj): <span class="built_in">Linear</span>(in_features=<span class="number">1536</span>, out_features=<span class="number">256</span>, bias=True)</span><br><span class="line">          (o_proj): <span class="built_in">Linear</span>(in_features=<span class="number">1536</span>, out_features=<span class="number">1536</span>, bias=False)</span><br><span class="line">          (rotary_emb): <span class="built_in">Qwen2RotaryEmbedding</span>()</span><br><span class="line">        )</span><br><span class="line">        (mlp): <span class="built_in">Qwen2MLP</span>(</span><br><span class="line">          (gate_proj): <span class="built_in">Linear</span>(in_features=<span class="number">1536</span>, out_features=<span class="number">8960</span>, bias=False)</span><br><span class="line">          (up_proj): <span class="built_in">Linear</span>(in_features=<span class="number">1536</span>, out_features=<span class="number">8960</span>, bias=False)</span><br><span class="line">          (down_proj): <span class="built_in">Linear</span>(in_features=<span class="number">8960</span>, out_features=<span class="number">1536</span>, bias=False)</span><br><span class="line">          (act_fn): <span class="built_in">SiLU</span>()</span><br><span class="line">        )</span><br><span class="line">        (input_layernorm): <span class="built_in">Qwen2RMSNorm</span>((<span class="number">1536</span>,), eps=<span class="number">1</span>e-<span class="number">06</span>)</span><br><span class="line">        (post_attention_layernorm): <span class="built_in">Qwen2RMSNorm</span>((<span class="number">1536</span>,), eps=<span class="number">1</span>e-<span class="number">06</span>)</span><br><span class="line">      )</span><br><span class="line">    )</span><br><span class="line">    (norm): <span class="built_in">Qwen2RMSNorm</span>((<span class="number">1536</span>,), eps=<span class="number">1</span>e-<span class="number">06</span>)</span><br><span class="line">    (rotary_emb): <span class="built_in">Qwen2RotaryEmbedding</span>()</span><br><span class="line">  )</span><br><span class="line">  (lm_head): <span class="built_in">Linear</span>(in_features=<span class="number">1536</span>, out_features=<span class="number">151936</span>, bias=False)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p><code>Qwen2ForCausalLM</code> 模型主要由两大核心组件构成：</p>
+<ol>
+<li><strong>模型（<code>model</code>）</strong>：基于 Transformer 的核心架构，负责处理输入 Token 并生成上下文嵌入。</li>
+<li><strong>语言建模头（<code>lm_head</code>）</strong>：将模型输出的嵌入转换为对应词汇的 Logits，支持 Token 预测。</li>
+</ol>
+<h3 id="值得注意的地方"><a href="#值得注意的地方" class="headerlink" title="值得注意的地方"></a>值得注意的地方</h3><ol>
+<li><code>Qwen2RotaryEmbedding</code>: 在注意力机制中使用<strong>旋转位置编码</strong></li>
+<li><code>Qwen2MLP</code>: 在MLP中使用了 <strong>门控 MLP（Gated MLP）</strong> 架构 <ul>
+<li><code>up_proj</code> 主要负责扩展特征空间，使模型能够学习更复杂的表示</li>
+<li><code>gate_proj</code> 主要生成控制信息流的门控信号</li>
+<li>升维过程中的</li>
+<li>生成门控信号，用于调节 MLP 内部的信息流</li>
+</ul>
+</li>
+<li><code>Qwen2RMSNorm</code>: 归一化使用 <strong>RMSNorm（均方根归一化）</strong> <ul>
+<li>RMSNorm 仅基于均方根（Root Mean Square, RMS）来进行归一化，而不计算均值。</li>
+<li>对于输入向量 $\mathbf{x}$，RMSNorm 的计算公式为：<script type="math/tex; mode=display">
+RMSNorm(x)=γ(xRMS(x)+ϵ)+β\text{RMSNorm}(\mathbf{x}) = \gamma \left( \frac{\mathbf{x}}{\text{RMS}(\mathbf{x}) + \epsilon} \right) + \beta</script>  其中，$\text{RMS}(\mathbf{x}) = \sqrt{\frac{1}{n} \sum_{i=1}^{n} x_i^2}$，$\gamma$ 和 $\beta$ 同样是可学习参数，$\epsilon$ 防止分母为零。</li>
+<li><strong>特点</strong>：<ul>
+<li><strong>计算效率</strong>：RMSNorm 省去了均值的计算，降低了计算复杂度，特别是在大规模模型中，这种优化可以显著减少训练和推理时间。</li>
+<li><strong>性能表现</strong>：尽管 RMSNorm 忽略了均值，但在许多实践中，它能够提供与 LayerNorm 相近甚至更好的性能，尤其是在某些特定任务或架构中。</li>
+<li><strong>稳定性</strong>：RMSNorm 通过仅依赖 RMS 进行规范化，可能在某些情况下提供更稳定的梯度流动，有助于训练过程的稳定性。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>预归一化(Pre-Norm)</code> 和 <code>后归一化(Post-Norm)</code>: <code>Qwen2DecoderLayer</code> 中有两个 RMSNorm 层: <ul>
+<li>input_layernorm(<code>Qwen2RMSNorm</code>): 位于自注意力机制和 MLP 之前</li>
+<li>post_attention_layernorm(<code>Qwen2RMSNorm</code>): 位于自注意力机制之后，进入 MLP 之前</li>
+<li>Transformer 架构中的归一化层可以放置在不同的位置，主要有两种常见的设计：<ul>
+<li><strong>后归一化（Post-Norm）</strong>：<ul>
+<li>归一化层位于子层（如自注意力层或 MLP 层）之后。</li>
+<li>典型的 Transformer 论文如 “Attention is All You Need” 中采用此设计。</li>
+<li>缺点：在非常深的模型中，可能导致梯度消失或梯度爆炸，影响训练稳定性。</li>
+</ul>
+</li>
+<li><strong>预归一化（Pre-Norm）</strong>：<ul>
+<li>归一化层位于子层之前。</li>
+<li>这种设计有助于缓解深层模型中的梯度问题，提高训练的稳定性和效率。</li>
+<li>近年来，越来越多的研究和实践表明，预归一化在深层模型中表现更佳。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>强化位置信息</code>: 在进入 <code>lm_head</code> 之前再次应用 <code>rotary_emb</code></li>
+<li><code>SiLU (Sigmoid Linear Unit)</code> 激活函数</li>
+</ol>
+<h3 id="示例流程"><a href="#示例流程" class="headerlink" title="示例流程"></a>示例流程</h3><ol>
+<li><strong>输入处理</strong>：<ul>
+<li><strong>文本输入</strong>：提示或部分文本通过 <code>embed_tokens</code> 层进行标记化并转化为嵌入。</li>
+</ul>
+</li>
+<li><strong>模型推理</strong>：<ul>
+<li>嵌入传递到堆叠的解码层，逐层应用自注意力、前馈网络和归一化，生成上下文嵌入。</li>
+</ul>
+</li>
+<li><strong>输出生成</strong>：<ul>
+<li>最终嵌入通过 <code>lm_head</code> 转换为词汇表的 Logits。</li>
+<li>对 Logits 应用 Softmax 获取下一个 Token 的概率分布。</li>
+<li>选择概率最高的 Token（或使用采样策略如 top-k 或 nucleus 采样）生成下一个词。</li>
+</ul>
+</li>
+<li><strong>迭代生成</strong>：<ul>
+<li>将新生成的 Token 添加到输入序列，重复该过程，直到达到终止条件（例如序列结束 Token 或最大长度）。</li>
+</ul>
+</li>
+</ol>
+<h2 id="Qwen2-VL-2B-Instruct-模型结构"><a href="#Qwen2-VL-2B-Instruct-模型结构" class="headerlink" title="Qwen2-VL-2B-Instruct 模型结构"></a><code>Qwen2-VL-2B-Instruct</code> 模型结构</h2><figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Qwen2VLForConditionalGeneration</span>(</span><br><span class="line">  (visual): <span class="built_in">Qwen2VisionTransformerPretrainedModel</span>(</span><br><span class="line">    (patch_embed): <span class="built_in">PatchEmbed</span>(</span><br><span class="line">      (proj): <span class="built_in">Conv3d</span>(<span class="number">3</span>, <span class="number">1280</span>, kernel_size=(<span class="number">2</span>, <span class="number">14</span>, <span class="number">14</span>), stride=(<span class="number">2</span>, <span class="number">14</span>, <span class="number">14</span>), bias=False)</span><br><span class="line">    )</span><br><span class="line">    (rotary_pos_emb): <span class="built_in">VisionRotaryEmbedding</span>()</span><br><span class="line">    (blocks): <span class="built_in">ModuleList</span>(</span><br><span class="line">      (<span class="number">0</span>-<span class="number">31</span>): <span class="number">32</span> x <span class="built_in">Qwen2VLVisionBlock</span>(</span><br><span class="line">        (norm1): <span class="built_in">LayerNorm</span>((<span class="number">1280</span>,), eps=<span class="number">1</span>e-<span class="number">06</span>, elementwise_affine=True)</span><br><span class="line">        (norm2): <span class="built_in">LayerNorm</span>((<span class="number">1280</span>,), eps=<span class="number">1</span>e-<span class="number">06</span>, elementwise_affine=True)</span><br><span class="line">        (attn): <span class="built_in">VisionSdpaAttention</span>(</span><br><span class="line">          (qkv): <span class="built_in">Linear</span>(in_features=<span class="number">1280</span>, out_features=<span class="number">3840</span>, bias=True)</span><br><span class="line">          (proj): <span class="built_in">Linear</span>(in_features=<span class="number">1280</span>, out_features=<span class="number">1280</span>, bias=True)</span><br><span class="line">        )</span><br><span class="line">        (mlp): <span class="built_in">VisionMlp</span>(</span><br><span class="line">          (fc1): <span class="built_in">Linear</span>(in_features=<span class="number">1280</span>, out_features=<span class="number">5120</span>, bias=True)</span><br><span class="line">          (act): <span class="built_in">QuickGELUActivation</span>()</span><br><span class="line">          (fc2): <span class="built_in">Linear</span>(in_features=<span class="number">5120</span>, out_features=<span class="number">1280</span>, bias=True)</span><br><span class="line">        )</span><br><span class="line">      )</span><br><span class="line">    )</span><br><span class="line">    (merger): <span class="built_in">PatchMerger</span>(</span><br><span class="line">      (ln_q): <span class="built_in">LayerNorm</span>((<span class="number">1280</span>,), eps=<span class="number">1</span>e-<span class="number">06</span>, elementwise_affine=True)</span><br><span class="line">      (mlp): <span class="built_in">Sequential</span>(</span><br><span class="line">        (<span class="number">0</span>): <span class="built_in">Linear</span>(in_features=<span class="number">5120</span>, out_features=<span class="number">5120</span>, bias=True)</span><br><span class="line">        (<span class="number">1</span>): <span class="built_in">GELU</span>(approximate=<span class="string">&#x27;none&#x27;</span>)</span><br><span class="line">        (<span class="number">2</span>): <span class="built_in">Linear</span>(in_features=<span class="number">5120</span>, out_features=<span class="number">1536</span>, bias=True)</span><br><span class="line">      )</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">  (model): <span class="built_in">Qwen2VLModel</span>(</span><br><span class="line">    (embed_tokens): <span class="built_in">Embedding</span>(<span class="number">151936</span>, <span class="number">1536</span>)</span><br><span class="line">    (layers): <span class="built_in">ModuleList</span>(</span><br><span class="line">      (<span class="number">0</span>-<span class="number">27</span>): <span class="number">28</span> x <span class="built_in">Qwen2VLDecoderLayer</span>(</span><br><span class="line">        (self_attn): <span class="built_in">Qwen2VLSdpaAttention</span>(</span><br><span class="line">          (q_proj): <span class="built_in">Linear</span>(in_features=<span class="number">1536</span>, out_features=<span class="number">1536</span>, bias=True)</span><br><span class="line">          (k_proj): <span class="built_in">Linear</span>(in_features=<span class="number">1536</span>, out_features=<span class="number">256</span>, bias=True)</span><br><span class="line">          (v_proj): <span class="built_in">Linear</span>(in_features=<span class="number">1536</span>, out_features=<span class="number">256</span>, bias=True)</span><br><span class="line">          (o_proj): <span class="built_in">Linear</span>(in_features=<span class="number">1536</span>, out_features=<span class="number">1536</span>, bias=False)</span><br><span class="line">          (rotary_emb): <span class="built_in">Qwen2VLRotaryEmbedding</span>()</span><br><span class="line">        )</span><br><span class="line">        (mlp): <span class="built_in">Qwen2MLP</span>(</span><br><span class="line">          (gate_proj): <span class="built_in">Linear</span>(in_features=<span class="number">1536</span>, out_features=<span class="number">8960</span>, bias=False)</span><br><span class="line">          (up_proj): <span class="built_in">Linear</span>(in_features=<span class="number">1536</span>, out_features=<span class="number">8960</span>, bias=False)</span><br><span class="line">          (down_proj): <span class="built_in">Linear</span>(in_features=<span class="number">8960</span>, out_features=<span class="number">1536</span>, bias=False)</span><br><span class="line">          (act_fn): <span class="built_in">SiLU</span>()</span><br><span class="line">        )</span><br><span class="line">        (input_layernorm): <span class="built_in">Qwen2RMSNorm</span>((<span class="number">1536</span>,), eps=<span class="number">1</span>e-<span class="number">06</span>)</span><br><span class="line">        (post_attention_layernorm): <span class="built_in">Qwen2RMSNorm</span>((<span class="number">1536</span>,), eps=<span class="number">1</span>e-<span class="number">06</span>)</span><br><span class="line">      )</span><br><span class="line">    )</span><br><span class="line">    (norm): <span class="built_in">Qwen2RMSNorm</span>((<span class="number">1536</span>,), eps=<span class="number">1</span>e-<span class="number">06</span>)</span><br><span class="line">    (rotary_emb): <span class="built_in">Qwen2VLRotaryEmbedding</span>()</span><br><span class="line">  )</span><br><span class="line">  (lm_head): <span class="built_in">Linear</span>(in_features=<span class="number">1536</span>, out_features=<span class="number">151936</span>, bias=False)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>由上 <code>Qwen2-VL-2B-Instruct</code> 模型主要由三个核心组件组成：</p>
+<ol>
+<li><strong>视觉模块（<code>visual</code>）</strong>：通过基于视觉 Transformer 的架构处理并编码视觉输入。</li>
+<li><strong>语言模块（<code>model</code>）</strong>：通过堆叠的解码层处理文本输入并生成输出。</li>
+<li><strong>条件生成头（<code>lm_head</code>）</strong>：将语言模块的输出转化为文本生成的词概率。</li>
+</ol>
+<h3 id="1-视觉模块-值得注意的地方"><a href="#1-视觉模块-值得注意的地方" class="headerlink" title="1. 视觉模块-值得注意的地方"></a>1. 视觉模块-值得注意的地方</h3><ol>
+<li><code>Conv3d</code>: 使用 3D 卷积覆盖非重叠的区域实现Patchify<ul>
+<li>将输入的3个通道映射到1280个特征通道</li>
+<li>卷积核大小(kernel_size): <code>(2, 14, 14)</code>; 步幅(stride): <code>(2, 14, 14)</code></li>
+<li><code>(N, 3, D, H, W) -&gt; (N, 1280, D_out, H_out, W_out)</code><ul>
+<li>1280 是每个 Token 的嵌入维度（<code>embedding dimension</code>）。</li>
+<li><strong><code>D_out * H_out * W_out</code></strong> 表示生成的 Token 数量</li>
+<li>每个 Token 对应于输入图像中的一个 Patch</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>VisionRotaryEmbedding</code>: 视觉特征添加位置信息</li>
+<li><code>LayerNorm</code>: 图像部分使用的是LN而非RMS, 但同样是Attn前后各一个(MLP 之前)</li>
+<li><code>QuickGELUActivation</code> 激活函数: 位于两个线性层之间，作为 MLP 的非线性激活函数</li>
+<li><code>PatchMerger</code>: 进行视觉token数的压缩与进一步提取特征(两层MLP):<ul>
+<li><strong>减少 Patch 数量</strong>：合并相邻的 Patch，减少整体的 Token 数量</li>
+<li><strong>增强特征表达和对齐维度</strong>：两层MLP提取特征, 同时对齐语言模型维度</li>
+<li><strong>GELU激活函数</strong></li>
+</ul>
+</li>
+</ol>
+<h3 id="2-语言模块-值得注意的地方"><a href="#2-语言模块-值得注意的地方" class="headerlink" title="2. 语言模块-值得注意的地方"></a>2. 语言模块-值得注意的地方</h3><ol>
+<li><code>词表大小</code>: 151657</li>
+<li><code>embed_matrix维度</code>: [151,936, 1536]</li>
+<li>其余注意事项 <code>同Qwen语言模型</code></li>
+</ol>
+<h3 id="示例流程-1"><a href="#示例流程-1" class="headerlink" title="示例流程"></a>示例流程</h3><ol>
+<li><strong>输入处理</strong>：<ul>
+<li><strong>视觉输入</strong>：通过视觉模块处理，将其转化为 Patch 嵌入并编码空间信息。</li>
+<li><strong>文本输入</strong>：通过语言模块的嵌入层将文本转化为特征向量。</li>
+</ul>
+</li>
+<li><strong>条件生成</strong>：<ul>
+<li>将视觉和文本信息整合到模型中，生成连贯且相关的输出。</li>
+</ul>
+</li>
+<li><strong>输出生成</strong>：<ul>
+<li><code>lm_head</code> 将语言模块的输出转化为词概率，生成最终文本。</li>
+</ul>
+</li>
+</ol>
+<p>qwen2vl 的一大创新就来源于对 <code>Patch</code> 的处理</p>
+<h3 id="详解一下-PatchEmbed"><a href="#详解一下-PatchEmbed" class="headerlink" title="详解一下 PatchEmbed"></a>详解一下 <code>PatchEmbed</code></h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">PatchEmbed</span>(nn.Module):</span><br><span class="line">	<span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params"></span></span><br><span class="line"><span class="params">		self,</span></span><br><span class="line"><span class="params">		patch_size: <span class="built_in">int</span> = <span class="number">14</span>,</span></span><br><span class="line"><span class="params">		temporal_patch_size: <span class="built_in">int</span> = <span class="number">2</span>,</span></span><br><span class="line"><span class="params">		in_channels: <span class="built_in">int</span> = <span class="number">3</span>,</span></span><br><span class="line"><span class="params">		embed_dim: <span class="built_in">int</span> = <span class="number">1152</span>,</span></span><br><span class="line"><span class="params">	</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">		<span class="built_in">super</span>().__init__()</span><br><span class="line">		<span class="variable language_">self</span>.patch_size = patch_size</span><br><span class="line">		<span class="variable language_">self</span>.temporal_patch_size = temporal_patch_size</span><br><span class="line">		<span class="variable language_">self</span>.in_channels = in_channels</span><br><span class="line">		<span class="variable language_">self</span>.embed_dim = embed_dim</span><br><span class="line">		  </span><br><span class="line">		kernel_size = [temporal_patch_size, patch_size, patch_size]</span><br><span class="line">		<span class="variable language_">self</span>.proj = nn.Conv3d(in_channels, embed_dim, kernel_size=kernel_size, stride=kernel_size, bias=<span class="literal">False</span>)</span><br><span class="line">	  </span><br><span class="line">	<span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, hidden_states: torch.Tensor</span>) -&gt; torch.Tensor:</span><br><span class="line">		target_dtype = <span class="variable language_">self</span>.proj.weight.dtype</span><br><span class="line">		hidden_states = hidden_states.view(</span><br><span class="line">		-<span class="number">1</span>, <span class="variable language_">self</span>.in_channels, <span class="variable language_">self</span>.temporal_patch_size, <span class="variable language_">self</span>.patch_size, <span class="variable language_">self</span>.patch_size</span><br><span class="line">		)</span><br><span class="line">		hidden_states = <span class="variable language_">self</span>.proj(hidden_states.to(dtype=target_dtype)).view(-<span class="number">1</span>, <span class="variable language_">self</span>.embed_dim)</span><br><span class="line">		<span class="keyword">return</span> hidden_states</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>输入时 <code>hidden_states</code> 维度为: [tokens=5704, dim=1176]</p>
+<ul>
+<li>想读懂qwen2vl是怎么处理图像视频数据的, 必须搞明白 <code>processor</code> 源码是如何处理的, 尤其是这个 <code>hidden_states</code> 维度</li>
+<li>维度详情为: <code>(grid_t * grid_h * grid_w, channel * self.temporal_patch_size * self.patch_size * self.patch_size)</code></li>
+<li>可以视作确定了 tokens个数, 并且确定了后续 3D卷积 处理patch<ul>
+<li>相当于后面的 3D卷积 只针对一个 patch 进行, 卷出来之后 <code>时间步</code>, <code>长</code>, <code>宽</code> 维度直接为降为1</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code>hidden_states = hidden_states.view(-1, self.in_channels, self.temporal_patch_size, self.patch_size, self.patch_size)</code></p>
+<ul>
+<li>又将 <code>hidden_states</code> 后面一个维度拆回去</li>
+</ul>
+</li>
+<li><p><code>hidden_states = self.proj(hidden_states.to(dtype=target_dtype)).view(-1, self.embed_dim)</code></p>
+<ul>
+<li>这是一个 <code>dim=1176 -&gt; self.embed_dim=1280</code> 过程</li>
+<li>其中 <code>self.proj</code> 是一个 3D 卷积: <ul>
+<li>in_channels=3</li>
+<li>embed_dim=1280</li>
+<li>kernel_size=[temporal_patch_size, patch_size, patch_size]</li>
+<li>stride=[temporal_patch_size, patch_size, patch_size]</li>
+<li>bias=False</li>
+</ul>
+</li>
+<li><blockquote>
+<blockquote>
+<blockquote>
+<p>hidden_states.to(dtype=target_dtype).shape</p>
+<ul>
+<li>torch.Size([5704, 3, 2, 14, 14])</li>
+</ul>
+</blockquote>
+</blockquote>
+</blockquote>
+</li>
+<li><blockquote>
+<blockquote>
+<blockquote>
+<p>self.proj(hidden_states.to(dtype=target_dtype)).shape</p>
+<ul>
+<li>torch.Size([5704, 1280, 1, 1, 1])</li>
+</ul>
+</blockquote>
+</blockquote>
+</blockquote>
+</li>
+<li><blockquote>
+<blockquote>
+<blockquote>
+<p>self.proj(hidden_states.to(dtype=target_dtype)).view(-1, self.embed_dim).shape</p>
+<ul>
+<li>torch.Size([5704, 1280])</li>
+</ul>
+</blockquote>
+</blockquote>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="详解一下-PatchMerger"><a href="#详解一下-PatchMerger" class="headerlink" title="详解一下 PatchMerger"></a>详解一下 <code>PatchMerger</code></h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">PatchMerger</span>(nn.Module):</span><br><span class="line"></span><br><span class="line">	<span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, dim: <span class="built_in">int</span>, context_dim: <span class="built_in">int</span>, spatial_merge_size: <span class="built_in">int</span> = <span class="number">2</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">	<span class="built_in">super</span>().__init__()</span><br><span class="line">	<span class="variable language_">self</span>.hidden_size = context_dim * (spatial_merge_size**<span class="number">2</span>)</span><br><span class="line">	<span class="variable language_">self</span>.ln_q = LayerNorm(context_dim, eps=<span class="number">1e-6</span>)</span><br><span class="line">	<span class="variable language_">self</span>.mlp = nn.Sequential(</span><br><span class="line">		nn.Linear(<span class="variable language_">self</span>.hidden_size, <span class="variable language_">self</span>.hidden_size),</span><br><span class="line">		nn.GELU(),</span><br><span class="line">		nn.Linear(<span class="variable language_">self</span>.hidden_size, dim),</span><br><span class="line">	)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x: torch.Tensor</span>) -&gt; torch.Tensor:</span><br><span class="line">	x = <span class="variable language_">self</span>.mlp(<span class="variable language_">self</span>.ln_q(x).view(-<span class="number">1</span>, <span class="variable language_">self</span>.hidden_size))</span><br><span class="line">	<span class="keyword">return</span> x</span><br></pre></td></tr></table></figure>
+<p>问题: 如果仔细阅读Qwen2VL的autoprocessor部分源码的话, 你会发现:</p>
+<ul>
+<li>tokenizer: 正常对文本部分进行分词, 使用”&lt;|vision_start|&gt;&lt;|image_pad|&gt;&lt;|vision_end|&gt;”来进行初步的视频tokens记录</li>
+<li>ImageProcessor: 按照 <code>时间步: 2, 长宽: 14x14</code> patchify</li>
+<li>最终输出的inputs_id: 会将 “&lt;|image_pad|&gt;”等视觉pad变长, 但是实际长度却是 patchify 之后的 1/4, 这个原因就是来自于 <code>PatchMerger</code> 模块</li>
+</ul>
+<p>解答: <code>PatchMerger</code> 类用于将多个 patch 合并成一个更高维度的表示。这种合并操作会显著减少 patch 的数量。具体来说，<code>PatchMerger</code> 通过 <code>spatial_merge_size</code>（默认为 2）将相邻的 patch 合并(<code>十字相邻</code>)。例如，<code>spatial_merge_size=2</code> 表示每 2x2 的 patch 会被合并为一个新的 patch。因此，原本的 patch 数量会减少为原来的 1/4。</p>
+<ul>
+<li>重点在 <code>self.ln_q(x).view(-1, self.hidden_size)</code> 这行代码</li>
+</ul>
+<h1 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h1><h2 id="视觉-语言-Vision-Language-VL-模型中有多个配置文件"><a href="#视觉-语言-Vision-Language-VL-模型中有多个配置文件" class="headerlink" title="视觉-语言(Vision-Language, VL)模型中有多个配置文件"></a>视觉-语言(Vision-Language, VL)模型中有多个配置文件</h2><ol>
+<li><code>config.json</code><br> <code>config.json</code> 在模型初始化时被加载, 模型的主要配置文件，用于定义模型的架构和参数。它包含了模型的结构信息，使得模型能够根据这些配置正确地初始化和运行。<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">	<span class="attr">&quot;architectures&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">		<span class="string">&quot;Qwen2VLForConditionalGeneration&quot;</span></span><br><span class="line">	<span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;attention_dropout&quot;</span><span class="punctuation">:</span> <span class="number">0.0</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;bos_token_id&quot;</span><span class="punctuation">:</span> <span class="number">151643</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;eos_token_id&quot;</span><span class="punctuation">:</span> <span class="number">151645</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;vision_start_token_id&quot;</span><span class="punctuation">:</span> <span class="number">151652</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;vision_end_token_id&quot;</span><span class="punctuation">:</span> <span class="number">151653</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;vision_token_id&quot;</span><span class="punctuation">:</span> <span class="number">151654</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;image_token_id&quot;</span><span class="punctuation">:</span> <span class="number">151655</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;video_token_id&quot;</span><span class="punctuation">:</span> <span class="number">151656</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;hidden_act&quot;</span><span class="punctuation">:</span> <span class="string">&quot;silu&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;hidden_size&quot;</span><span class="punctuation">:</span> <span class="number">1536</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;initializer_range&quot;</span><span class="punctuation">:</span> <span class="number">0.02</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;intermediate_size&quot;</span><span class="punctuation">:</span> <span class="number">8960</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;max_position_embeddings&quot;</span><span class="punctuation">:</span> <span class="number">32768</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;max_window_layers&quot;</span><span class="punctuation">:</span> <span class="number">28</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;model_type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;qwen2_vl&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;num_attention_heads&quot;</span><span class="punctuation">:</span> <span class="number">12</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;num_hidden_layers&quot;</span><span class="punctuation">:</span> <span class="number">28</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;num_key_value_heads&quot;</span><span class="punctuation">:</span> <span class="number">2</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;rms_norm_eps&quot;</span><span class="punctuation">:</span> <span class="number">1e-06</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;rope_theta&quot;</span><span class="punctuation">:</span> <span class="number">1000000.0</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;sliding_window&quot;</span><span class="punctuation">:</span> <span class="number">32768</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;tie_word_embeddings&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;torch_dtype&quot;</span><span class="punctuation">:</span> <span class="string">&quot;bfloat16&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;transformers_version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;4.41.2&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;use_cache&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;use_sliding_window&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;vision_config&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">		<span class="attr">&quot;depth&quot;</span><span class="punctuation">:</span> <span class="number">32</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;embed_dim&quot;</span><span class="punctuation">:</span> <span class="number">1280</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;mlp_ratio&quot;</span><span class="punctuation">:</span> <span class="number">4</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;num_heads&quot;</span><span class="punctuation">:</span> <span class="number">16</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;in_chans&quot;</span><span class="punctuation">:</span> <span class="number">3</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;hidden_size&quot;</span><span class="punctuation">:</span> <span class="number">1536</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;patch_size&quot;</span><span class="punctuation">:</span> <span class="number">14</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;spatial_merge_size&quot;</span><span class="punctuation">:</span> <span class="number">2</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;spatial_patch_size&quot;</span><span class="punctuation">:</span> <span class="number">14</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;temporal_patch_size&quot;</span><span class="punctuation">:</span> <span class="number">2</span></span><br><span class="line">	<span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;rope_scaling&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">		<span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;mrope&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;mrope_section&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">		<span class="number">16</span><span class="punctuation">,</span></span><br><span class="line">		<span class="number">24</span><span class="punctuation">,</span></span><br><span class="line">		<span class="number">24</span></span><br><span class="line">		<span class="punctuation">]</span></span><br><span class="line">	<span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;vocab_size&quot;</span><span class="punctuation">:</span> <span class="number">151936</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p><code>Qwen2VLConfig</code> 与 <code>LlavaConfig</code> 的初始化配置类略有不同</p>
+<ul>
+<li><code>LlavaConfig</code> 类可以单独接收 <code>vision_config</code>, <code>text_config</code> </li>
+<li><code>Qwen2VLConfig</code> 类主要接受语言模型的配置参数，并通过 <code>vision_config</code> 参数嵌套包含视觉模型的配置, 可以直接传入json</li>
+</ul>
+<p><code>Qwen2VLConfig</code> 接收参数:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Qwen2VLConfig</span>(<span class="title class_ inherited__">PretrainedConfig</span>):</span><br><span class="line">	model_type = <span class="string">&quot;qwen2_vl&quot;</span></span><br><span class="line">	keys_to_ignore_at_inference = [<span class="string">&quot;past_key_values&quot;</span>]</span><br><span class="line"></span><br><span class="line">	<span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params"></span></span><br><span class="line"><span class="params">		self,</span></span><br><span class="line"><span class="params">		vocab_size=<span class="number">152064</span>,</span></span><br><span class="line"><span class="params">		hidden_size=<span class="number">8192</span>,</span></span><br><span class="line"><span class="params">		intermediate_size=<span class="number">29568</span>,</span></span><br><span class="line"><span class="params">		num_hidden_layers=<span class="number">80</span>,</span></span><br><span class="line"><span class="params">		num_attention_heads=<span class="number">64</span>,</span></span><br><span class="line"><span class="params">		num_key_value_heads=<span class="number">8</span>,</span></span><br><span class="line"><span class="params">		hidden_act=<span class="string">&quot;silu&quot;</span>,</span></span><br><span class="line"><span class="params">		max_position_embeddings=<span class="number">32768</span>,</span></span><br><span class="line"><span class="params">		initializer_range=<span class="number">0.02</span>,</span></span><br><span class="line"><span class="params">		rms_norm_eps=<span class="number">1e-05</span>,</span></span><br><span class="line"><span class="params">		use_cache=<span class="literal">True</span>,</span></span><br><span class="line"><span class="params">		tie_word_embeddings=<span class="literal">False</span>,</span></span><br><span class="line"><span class="params">		rope_theta=<span class="number">1000000.0</span>,</span></span><br><span class="line"><span class="params">		use_sliding_window=<span class="literal">False</span>,</span></span><br><span class="line"><span class="params">		sliding_window=<span class="number">4096</span>,</span></span><br><span class="line"><span class="params">		max_window_layers=<span class="number">80</span>,</span></span><br><span class="line"><span class="params">		attention_dropout=<span class="number">0.0</span>,</span></span><br><span class="line"><span class="params">		vision_config=<span class="literal">None</span>,</span></span><br><span class="line"><span class="params">		rope_scaling=<span class="literal">None</span>,</span></span><br><span class="line"><span class="params">		**kwargs,</span></span><br><span class="line"><span class="params">	</span>):</span><br></pre></td></tr></table></figure></p>
+<p><code>Qwen2VLConfig</code> 官方示例:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> Qwen2VLForConditionalGeneration, Qwen2VLConfig</span><br><span class="line"></span><br><span class="line"><span class="comment"># Initializing a Qwen2VL style configuration</span></span><br><span class="line">configuration = Qwen2VLConfig()</span><br><span class="line"></span><br><span class="line"><span class="comment"># Initializing a model from the Qwen2-VL-7B style configuration</span></span><br><span class="line">model = Qwen2VLForConditionalGeneration(configuration)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Accessing the model configuration</span></span><br><span class="line">configuration = model.config</span><br></pre></td></tr></table></figure></p>
+<p>自定义配置:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> Qwen2VLConfig, Qwen2VLForConditionalGeneration</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取 JSON 配置文件</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;path/to/your/config.json&quot;</span>, <span class="string">&quot;r&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    config_dict = json.load(f)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建 Qwen2VLConfig 实例</span></span><br><span class="line">qwen2vl_config = Qwen2VLConfig(**config_dict)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 初始化并加载 Qwen2VL 模型</span></span><br><span class="line">model = Qwen2VLForConditionalGeneration(qwen2vl_config)</span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
+<ol>
+<li><code>generation_config.json</code><br> <code>generation_config.json</code> 在调用生成方法（如 <code>generate()</code>）时被加载, 专门用于定义文本生成过程中的超参数和策略。这些配置项控制生成文本的行为，如生成长度、采样策略、温度、束搜索等, 例如:<ul>
+<li><strong>生成长度</strong>：如最大生成长度（<code>max_length</code>）、最小生成长度（<code>min_length</code>）等。</li>
+<li><strong>生成策略</strong>：<ul>
+<li><strong>采样相关</strong>：如温度（<code>temperature</code>）、顶部K采样（<code>top_k</code>）、顶部P采样（<code>top_p</code>）等。</li>
+<li><strong>束搜索</strong>：束宽度（<code>num_beams</code>）、束惩罚因子（<code>repetition_penalty</code>）等。</li>
+</ul>
+</li>
+<li><strong>其他生成参数</strong>：如是否使用核采样（<code>do_sample</code>）、停止标记（<code>eos_token_id</code>）等。<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">	<span class="attr">&quot;bos_token_id&quot;</span><span class="punctuation">:</span> <span class="number">151643</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;pad_token_id&quot;</span><span class="punctuation">:</span> <span class="number">151643</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;do_sample&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;eos_token_id&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">		<span class="number">151645</span><span class="punctuation">,</span></span><br><span class="line">		<span class="number">151643</span></span><br><span class="line">	<span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;repetition_penalty&quot;</span><span class="punctuation">:</span> <span class="number">1.0</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;temperature&quot;</span><span class="punctuation">:</span> <span class="number">0.01</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;top_p&quot;</span><span class="punctuation">:</span> <span class="number">0.001</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;top_k&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;transformers_version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;4.37.0&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ol>
+<p>值得注意的一个地方是, 在仅使用 <code>qwen2vl_config = Qwen2VLConfig(**config_dict)</code> 也就是 config.json 初始化模型的时候, 模型也会有推理参数, 这是 huggingface 源码中 PretrainedConfig 类初始化的时候会给一个默认的参数字典:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@staticmethod</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_get_global_generation_defaults</span>() -&gt; <span class="type">Dict</span>[<span class="built_in">str</span>, <span class="type">Any</span>]:</span><br><span class="line">	<span class="keyword">return</span> &#123;</span><br><span class="line">		<span class="string">&quot;max_length&quot;</span>: <span class="number">20</span>,</span><br><span class="line">		<span class="string">&quot;min_length&quot;</span>: <span class="number">0</span>,</span><br><span class="line">		<span class="string">&quot;do_sample&quot;</span>: <span class="literal">False</span>,</span><br><span class="line">		<span class="string">&quot;early_stopping&quot;</span>: <span class="literal">False</span>,</span><br><span class="line">		<span class="string">&quot;num_beams&quot;</span>: <span class="number">1</span>,</span><br><span class="line">		<span class="string">&quot;num_beam_groups&quot;</span>: <span class="number">1</span>,</span><br><span class="line">		<span class="string">&quot;diversity_penalty&quot;</span>: <span class="number">0.0</span>,</span><br><span class="line">		<span class="string">&quot;temperature&quot;</span>: <span class="number">1.0</span>,</span><br><span class="line">		<span class="string">&quot;top_k&quot;</span>: <span class="number">50</span>,</span><br><span class="line">		<span class="string">&quot;top_p&quot;</span>: <span class="number">1.0</span>,</span><br><span class="line">		<span class="string">&quot;typical_p&quot;</span>: <span class="number">1.0</span>,</span><br><span class="line">		<span class="string">&quot;repetition_penalty&quot;</span>: <span class="number">1.0</span>,</span><br><span class="line">		<span class="string">&quot;length_penalty&quot;</span>: <span class="number">1.0</span>,</span><br><span class="line">		<span class="string">&quot;no_repeat_ngram_size&quot;</span>: <span class="number">0</span>,</span><br><span class="line">		<span class="string">&quot;encoder_no_repeat_ngram_size&quot;</span>: <span class="number">0</span>,</span><br><span class="line">		<span class="string">&quot;bad_words_ids&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">		<span class="string">&quot;num_return_sequences&quot;</span>: <span class="number">1</span>,</span><br><span class="line">		<span class="string">&quot;output_scores&quot;</span>: <span class="literal">False</span>,</span><br><span class="line">		<span class="string">&quot;return_dict_in_generate&quot;</span>: <span class="literal">False</span>,</span><br><span class="line">		<span class="string">&quot;forced_bos_token_id&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">		<span class="string">&quot;forced_eos_token_id&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">		<span class="string">&quot;remove_invalid_values&quot;</span>: <span class="literal">False</span>,</span><br><span class="line">		<span class="string">&quot;exponential_decay_length_penalty&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">		<span class="string">&quot;suppress_tokens&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">		<span class="string">&quot;begin_suppress_tokens&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></p>
+<ol>
+<li><p><code>vocab.json</code><br> <code>vocab.json</code> 文件主要用于定义分词器的词汇表。它包含了模型可以识别和处理的所有词汇（tokens）及其对应的唯一标识符（IDs）。一些特殊tokens标记一般不会出现在这里    </p>
+</li>
+<li><p><code>tokenizer_config.json</code><br> <code>tokenizer_config.json</code> 文件用于存储分词器的高层配置参数。这些参数影响分词器的行为和处理方式, 如填充方式(<code>padding_side</code>)、添加特殊标记(<code>add_special_tokens</code>)、最大序列长度(<code>model_max_length</code>)等. 但不涉及具体的词汇映射或分词逻辑:</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	&quot;add_prefix_space&quot;: false,</span><br><span class="line">	<span class="string">&quot;added_tokens_decoder&quot;</span>: &#123;</span><br><span class="line">		&quot;<span class="number">151643</span>&quot;: &#123;</span><br><span class="line">			&quot;<span class="attribute">content</span>&quot;: <span class="string">&quot;&lt;|endoftext|&gt;&quot;</span>,</span><br><span class="line">			<span class="string">&quot;lstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;normalized&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;rstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;single_word&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;special&quot;</span>: true</span><br><span class="line">		&#125;,</span><br><span class="line">		&quot;<span class="number">151644</span>&quot;: &#123;</span><br><span class="line">			&quot;<span class="attribute">content</span>&quot;: <span class="string">&quot;&lt;|im_start|&gt;&quot;</span>,</span><br><span class="line">			<span class="string">&quot;lstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;normalized&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;rstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;single_word&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;special&quot;</span>: true</span><br><span class="line">		&#125;,</span><br><span class="line">		&quot;<span class="number">151645</span>&quot;: &#123;</span><br><span class="line">			&quot;<span class="attribute">content</span>&quot;: <span class="string">&quot;&lt;|im_end|&gt;&quot;</span>,</span><br><span class="line">			<span class="string">&quot;lstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;normalized&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;rstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;single_word&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;special&quot;</span>: true</span><br><span class="line">		&#125;,</span><br><span class="line">		&quot;<span class="number">151646</span>&quot;: &#123;</span><br><span class="line">			&quot;<span class="attribute">content</span>&quot;: <span class="string">&quot;&lt;|object_ref_start|&gt;&quot;</span>,</span><br><span class="line">			<span class="string">&quot;lstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;normalized&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;rstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;single_word&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;special&quot;</span>: true</span><br><span class="line">		&#125;,</span><br><span class="line">		&quot;<span class="number">151647</span>&quot;: &#123;</span><br><span class="line">			&quot;<span class="attribute">content</span>&quot;: <span class="string">&quot;&lt;|object_ref_end|&gt;&quot;</span>,</span><br><span class="line">			<span class="string">&quot;lstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;normalized&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;rstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;single_word&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;special&quot;</span>: true</span><br><span class="line">		&#125;,</span><br><span class="line">		&quot;<span class="number">151648</span>&quot;: &#123;</span><br><span class="line">			&quot;<span class="attribute">content</span>&quot;: <span class="string">&quot;&lt;|box_start|&gt;&quot;</span>,</span><br><span class="line">			<span class="string">&quot;lstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;normalized&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;rstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;single_word&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;special&quot;</span>: true</span><br><span class="line">		&#125;,</span><br><span class="line">		&quot;<span class="number">151649</span>&quot;: &#123;</span><br><span class="line">			&quot;<span class="attribute">content</span>&quot;: <span class="string">&quot;&lt;|box_end|&gt;&quot;</span>,</span><br><span class="line">			<span class="string">&quot;lstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;normalized&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;rstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;single_word&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;special&quot;</span>: true</span><br><span class="line">		&#125;,</span><br><span class="line">		&quot;<span class="number">151650</span>&quot;: &#123;</span><br><span class="line">			&quot;<span class="attribute">content</span>&quot;: <span class="string">&quot;&lt;|quad_start|&gt;&quot;</span>,</span><br><span class="line">			<span class="string">&quot;lstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;normalized&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;rstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;single_word&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;special&quot;</span>: true</span><br><span class="line">		&#125;,</span><br><span class="line">		&quot;<span class="number">151651</span>&quot;: &#123;</span><br><span class="line">			&quot;<span class="attribute">content</span>&quot;: <span class="string">&quot;&lt;|quad_end|&gt;&quot;</span>,</span><br><span class="line">			<span class="string">&quot;lstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;normalized&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;rstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;single_word&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;special&quot;</span>: true</span><br><span class="line">		&#125;,</span><br><span class="line">		&quot;<span class="number">151652</span>&quot;: &#123;</span><br><span class="line">			&quot;<span class="attribute">content</span>&quot;: <span class="string">&quot;&lt;|vision_start|&gt;&quot;</span>,</span><br><span class="line">			<span class="string">&quot;lstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;normalized&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;rstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;single_word&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;special&quot;</span>: true</span><br><span class="line">		&#125;,</span><br><span class="line">		&quot;<span class="number">151653</span>&quot;: &#123;</span><br><span class="line">			&quot;<span class="attribute">content</span>&quot;: <span class="string">&quot;&lt;|vision_end|&gt;&quot;</span>,</span><br><span class="line">			<span class="string">&quot;lstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;normalized&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;rstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;single_word&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;special&quot;</span>: true</span><br><span class="line">		&#125;,</span><br><span class="line">		&quot;<span class="number">151654</span>&quot;: &#123;</span><br><span class="line">			&quot;<span class="attribute">content</span>&quot;: <span class="string">&quot;&lt;|vision_pad|&gt;&quot;</span>,</span><br><span class="line">			<span class="string">&quot;lstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;normalized&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;rstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;single_word&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;special&quot;</span>: true</span><br><span class="line">		&#125;,</span><br><span class="line">		&quot;<span class="number">151655</span>&quot;: &#123;</span><br><span class="line">			&quot;<span class="attribute">content</span>&quot;: <span class="string">&quot;&lt;|image_pad|&gt;&quot;</span>,</span><br><span class="line">			<span class="string">&quot;lstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;normalized&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;rstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;single_word&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;special&quot;</span>: true</span><br><span class="line">		&#125;,</span><br><span class="line">		&quot;<span class="number">151656</span>&quot;: &#123;</span><br><span class="line">			&quot;<span class="attribute">content</span>&quot;: <span class="string">&quot;&lt;|video_pad|&gt;&quot;</span>,</span><br><span class="line">			<span class="string">&quot;lstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;normalized&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;rstrip&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;single_word&quot;</span>: false,</span><br><span class="line">			<span class="string">&quot;special&quot;</span>: true</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;,</span><br><span class="line">	&quot;additional_special_tokens&quot;: [<span class="string">&quot;&lt;|im_start|&gt;&quot;</span>, <span class="string">&quot;&lt;|im_end|&gt;&quot;</span>, <span class="string">&quot;&lt;|object_ref_start|&gt;&quot;</span>,<span class="string">&quot;&lt;|object_ref_end|&gt;&quot;</span>,<span class="string">&quot;&lt;|box_start|&gt;&quot;</span>,<span class="string">&quot;&lt;|box_end|&gt;&quot;</span>,<span class="string">&quot;&lt;|quad_start|&gt;&quot;</span>,<span class="string">&quot;&lt;|quad_end|&gt;&quot;</span>,<span class="string">&quot;&lt;|vision_start|&gt;&quot;</span>,<span class="string">&quot;&lt;|vision_end|&gt;&quot;</span>,<span class="string">&quot;&lt;|vision_pad|&gt;&quot;</span>,<span class="string">&quot;&lt;|image_pad|&gt;&quot;</span>,<span class="string">&quot;&lt;|video_pad|&gt;&quot;</span>],</span><br><span class="line">	<span class="string">&quot;bos_token&quot;</span>: null,</span><br><span class="line">	<span class="string">&quot;chat_template&quot;</span>: <span class="string">&quot;&#123;% set image_count = namespace(value=0) %&#125;&#123;% set video_count = namespace(value=0) %&#125;&#123;% for message in messages %&#125;&#123;% if loop.first and message[&#x27;role&#x27;] != &#x27;system&#x27; %&#125;&lt;|im_start|&gt;system\nYou are a helpful assistant.&lt;|im_end|&gt;\n&#123;% endif %&#125;&lt;|im_start|&gt;&#123;&#123; message[&#x27;role&#x27;] &#125;&#125;\n&#123;% if message[&#x27;content&#x27;] is string %&#125;&#123;&#123; message[&#x27;content&#x27;] &#125;&#125;&lt;|im_end|&gt;\n&#123;% else %&#125;&#123;% for content in message[&#x27;content&#x27;] %&#125;&#123;% if content[&#x27;type&#x27;] == &#x27;image&#x27; or &#x27;image&#x27; in content or &#x27;image_url&#x27; in content %&#125;&#123;% set image_count.value = image_count.value + 1 %&#125;&#123;% if add_vision_id %&#125;Picture &#123;&#123; image_count.value &#125;&#125;: &#123;% endif %&#125;&lt;|vision_start|&gt;&lt;|image_pad|&gt;&lt;|vision_end|&gt;&#123;% elif content[&#x27;type&#x27;] == &#x27;video&#x27; or &#x27;video&#x27; in content %&#125;&#123;% set video_count.value = video_count.value + 1 %&#125;&#123;% if add_vision_id %&#125;Video &#123;&#123; video_count.value &#125;&#125;: &#123;% endif %&#125;&lt;|vision_start|&gt;&lt;|video_pad|&gt;&lt;|vision_end|&gt;&#123;% elif &#x27;text&#x27; in content %&#125;&#123;&#123; content[&#x27;text&#x27;] &#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;&lt;|im_end|&gt;\n&#123;% endif %&#125;&#123;% endfor %&#125;&#123;% if add_generation_prompt %&#125;&lt;|im_start|&gt;assistant\n&#123;% endif %&#125;&quot;</span>,</span><br><span class="line">	<span class="string">&quot;clean_up_tokenization_spaces&quot;</span>: false,</span><br><span class="line">	<span class="string">&quot;eos_token&quot;</span>: <span class="string">&quot;&lt;|im_end|&gt;&quot;</span>,</span><br><span class="line">	<span class="string">&quot;padding_side&quot;</span>: <span class="string">&quot;left&quot;</span>,</span><br><span class="line">	<span class="string">&quot;errors&quot;</span>: <span class="string">&quot;replace&quot;</span>,</span><br><span class="line">	<span class="string">&quot;model_max_length&quot;</span>: <span class="number">32768</span>,</span><br><span class="line">	<span class="string">&quot;pad_token&quot;</span>: <span class="string">&quot;&lt;|endoftext|&gt;&quot;</span>,</span><br><span class="line">	<span class="string">&quot;split_special_tokens&quot;</span>: false,</span><br><span class="line">	<span class="string">&quot;tokenizer_class&quot;</span>: <span class="string">&quot;Qwen2Tokenizer&quot;</span>,</span><br><span class="line">	<span class="string">&quot;unk_token&quot;</span>: null</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>tokenizer.json</code><br><code>tokenizer.json</code> 是一个综合性文件，通常包含了分词器的完整配置和分词逻辑。它不仅包含 <code>vocab.json</code> 和 <code>tokenizer_config.json</code> 的内容(但<code>tokenizer.json</code>中的add_tokens可能没有<code>tokenizer_config.json</code>中全)，还包括分词器的具体实现细节，如分词合并规则、正则表达式等, 结合 <code>tokenizer_config.json</code> 的内容，提供完整的分词器配置</p>
+</li>
+</ol>
+<h3 id="vocab-json-tokenizer-json-和-tokenizer-config-json"><a href="#vocab-json-tokenizer-json-和-tokenizer-config-json" class="headerlink" title="vocab.json, tokenizer.json 和 tokenizer_config.json"></a><code>vocab.json</code>, <code>tokenizer.json</code> 和 <code>tokenizer_config.json</code></h3><ul>
+<li><strong><code>vocab.json</code> 与 <code>tokenizer.json</code></strong>：<ul>
+<li><code>vocab.json</code> 提供了词汇到ID的基础映射，是分词器不可或缺的一部分。</li>
+<li><code>tokenizer.json</code> 将 <code>vocab.json</code> 嵌入其中，并结合分词规则（如BPE的合并规则）和行为参数，形成一个完整的分词器定义。</li>
+</ul>
+</li>
+<li><strong><code>tokenizer_config.json</code> 与 <code>tokenizer.json</code></strong>：<ul>
+<li><code>tokenizer_config.json</code> 专注于高层次的分词器配置参数，控制分词器的整体行为。</li>
+<li><code>tokenizer.json</code> 不仅包含 <code>tokenizer_config.json</code> 的内容，还包括具体的分词逻辑和词汇表，是一个更全面的配置文件。</li>
+</ul>
+</li>
+</ul>
+<h2 id="Qwen2-1-5B-config"><a href="#Qwen2-1-5B-config" class="headerlink" title="Qwen2-1.5B config"></a><code>Qwen2-1.5B</code> config</h2><figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">Qwen2Config &#123;</span><br><span class="line">  &quot;_attn_implementation_autoset&quot;: true,</span><br><span class="line">  <span class="string">&quot;_name_or_path&quot;</span>: <span class="string">&quot;/mnt/nas/ianli/models/Qwen2-1.5B&quot;</span>,</span><br><span class="line">  <span class="string">&quot;architectures&quot;</span>: [</span><br><span class="line">    <span class="string">&quot;Qwen2ForCausalLM&quot;</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="string">&quot;attention_dropout&quot;</span>: <span class="number">0.0</span>,</span><br><span class="line">  <span class="string">&quot;bos_token_id&quot;</span>: <span class="number">151643</span>,</span><br><span class="line">  <span class="string">&quot;eos_token_id&quot;</span>: <span class="number">151643</span>,</span><br><span class="line">  <span class="string">&quot;hidden_act&quot;</span>: <span class="string">&quot;silu&quot;</span>,</span><br><span class="line">  <span class="string">&quot;hidden_size&quot;</span>: <span class="number">1536</span>,</span><br><span class="line">  <span class="string">&quot;initializer_range&quot;</span>: <span class="number">0.02</span>,</span><br><span class="line">  <span class="string">&quot;intermediate_size&quot;</span>: <span class="number">8960</span>,</span><br><span class="line">  <span class="string">&quot;max_position_embeddings&quot;</span>: <span class="number">131072</span>,</span><br><span class="line">  <span class="string">&quot;max_window_layers&quot;</span>: <span class="number">28</span>,</span><br><span class="line">  <span class="string">&quot;model_type&quot;</span>: <span class="string">&quot;qwen2&quot;</span>,</span><br><span class="line">  <span class="string">&quot;num_attention_heads&quot;</span>: <span class="number">12</span>,</span><br><span class="line">  <span class="string">&quot;num_hidden_layers&quot;</span>: <span class="number">28</span>,</span><br><span class="line">  <span class="string">&quot;num_key_value_heads&quot;</span>: <span class="number">2</span>,</span><br><span class="line">  <span class="string">&quot;rms_norm_eps&quot;</span>: <span class="number">1</span>e-<span class="number">06</span>,</span><br><span class="line">  <span class="string">&quot;rope_scaling&quot;</span>: null,</span><br><span class="line">  <span class="string">&quot;rope_theta&quot;</span>: <span class="number">1000000.0</span>,</span><br><span class="line">  <span class="string">&quot;sliding_window&quot;</span>: null,</span><br><span class="line">  <span class="string">&quot;tie_word_embeddings&quot;</span>: true,</span><br><span class="line">  <span class="string">&quot;torch_dtype&quot;</span>: <span class="string">&quot;bfloat16&quot;</span>,</span><br><span class="line">  <span class="string">&quot;transformers_version&quot;</span>: <span class="string">&quot;4.46.3&quot;</span>,</span><br><span class="line">  <span class="string">&quot;use_cache&quot;</span>: true,</span><br><span class="line">  <span class="string">&quot;use_sliding_window&quot;</span>: false,</span><br><span class="line">  <span class="string">&quot;vocab_size&quot;</span>: <span class="number">151936</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="关于Qwen2VL的训练构想与需求"><a href="#关于Qwen2VL的训练构想与需求" class="headerlink" title="关于Qwen2VL的训练构想与需求"></a>关于Qwen2VL的训练构想与需求</h1><ol>
+<li><strong>网络结构</strong>: 继承 Qwen2VL 的 <code>visual部分</code> 网络结构, 修改Qwen2VL的 <code>语言部分</code> 结构与 <code>陈老师的天文语言模型</code> 结构相一致</li>
+<li><strong>Tokenizer</strong>: 注意修改语言模型 <code>tokenizer</code> 中的 <code>special_tokens</code>, 尤其是添加相关视觉的 <code>special_tokens</code> 与 Qwen2VL 保持一致</li>
+<li><strong>模型权重</strong>:  <code>visual部分</code> 加载所继承的 Qwen2VL 的视觉权重, <code>语言部分</code> 加载 <code>陈老师的天文语言模型</code> </li>
+<li><strong>训练框架</strong>: <ul>
+<li>方案一: 将修改完 网络结构 和 参数权重 的模型保存好, 基于现有微调框架进行训练<ul>
+<li>问题: 可能存在兼容性的问题, 现在能想到的主要兼容问题: <ul>
+<li>现有微调框架对于网络结构的继承</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>方案二: 训练对于直接使用现有框架而言灵活度要求更高, 同时为了后续可拓展性:<ul>
+<li>计划基于 Huggingface 直接搭建训练框架(正在进行)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>数据要求</strong>: <ol>
+<li>通用图文对<ul>
+<li>因为重构了原VL模型的结构和权重, 故而该模型训练还有 视觉 和 语言 对齐的任务存在, 故而需要有大规模高质量的图文数据对支撑</li>
+<li>需求(正在调研)</li>
+</ul>
+</li>
+<li>天文图文对<ul>
+<li>Apod网站爬虫数据集提供了较高质量了天文图文对</li>
+<li>天文微调图文对, 使用目前已有的填空、选择、简答</li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/12/05/%E5%8D%83%E9%97%AE%E7%9B%B8%E5%85%B3/" data-id="cm4boxx5h0006ykfygy3168pe" data-title="千问相关" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2024/12/05/DP%E5%92%8CDDP/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          DP和DDP
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2024/12/05/LLaMa%E7%B3%BB%E5%88%97/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">LLaMa系列</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/12/">December 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2024/12/06/MoE-Rag-Peft-RLHF-DPO/">MoE_Rag_Peft_RLHF_DPO</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/05/Olmo%E5%8F%8Adolma%E5%AE%9E%E8%B7%B5/">Olmo及dolma实践</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/05/DeepSpeed%E7%9B%B8%E5%85%B3/">DeepSpeed相关</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/05/DP%E5%92%8CDDP/">DP和DDP</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/05/%E5%8D%83%E9%97%AE%E7%9B%B8%E5%85%B3/">千问相关</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2024 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+</body>
+</html>

@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>DP和DDP | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="首先 DP 和 DDP 都只是 数据并行 并不涉及到 模型权重 的拆分。  DataParallel (DP)DP是较简单的一种数据并行方式，直接将模型复制到多个GPU上并行计算，每个GPU计算batch中的一部分数据，各自完成前向和反向后，将梯度汇总到主GPU上。其基本流程：  加载模型、数据至内存； 创建DP模型； DP模型的forward过程： 一个batch的数据均分到不同device上">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DP和DDP">
+<meta property="og:url" content="http://example.com/2024/12/05/DP%E5%92%8CDDP/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="首先 DP 和 DDP 都只是 数据并行 并不涉及到 模型权重 的拆分。  DataParallel (DP)DP是较简单的一种数据并行方式，直接将模型复制到多个GPU上并行计算，每个GPU计算batch中的一部分数据，各自完成前向和反向后，将梯度汇总到主GPU上。其基本流程：  加载模型、数据至内存； 创建DP模型； DP模型的forward过程： 一个batch的数据均分到不同device上">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-12-05T14:20:09.000Z">
+<meta property="article:modified_time" content="2024-12-05T17:48:40.073Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-DP和DDP" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/12/05/DP%E5%92%8CDDP/" class="article-date">
+  <time class="dt-published" datetime="2024-12-05T14:20:09.000Z" itemprop="datePublished">2024-12-05</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      DP和DDP
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>首先 <strong>DP</strong> 和 <strong>DDP</strong> 都只是 <code>数据并行</code> 并不涉及到 <code>模型权重</code> 的拆分。</p>
+</blockquote>
+<h2 id="DataParallel-DP"><a href="#DataParallel-DP" class="headerlink" title="DataParallel (DP)"></a>DataParallel (DP)</h2><p>DP是较简单的一种数据并行方式，直接将模型复制到多个GPU上并行计算，每个GPU计算batch中的一部分数据，各自完成前向和反向后，将梯度汇总到主GPU上。其基本流程：</p>
+<ol>
+<li>加载模型、数据至内存；</li>
+<li>创建DP模型；</li>
+<li>DP模型的forward过程：<ol>
+<li><strong>一个batch的数据均分到不同device</strong>上；</li>
+<li>为每个device复制一份模型；</li>
+<li>至此，每个device上有模型和一份数据，并行进行前向传播；</li>
+<li>收集各个device上的输出；</li>
+</ol>
+</li>
+<li>每个device上的模型反向传播后，收集梯度到主device上，更新主device上的模型，将模型广播到其他device上；</li>
+<li>3-4循环。</li>
+</ol>
+<p>在DP中，只有一个主进程，主进程下有多个线程，每个线程管理一个device的训练。因此，DP中内存中只存在一份数据，各个线程间是共享这份数据的。DP和Parameter Server的方式很像。</p>
+<p><strong>Demo:</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">import</span> torch.optim <span class="keyword">as</span> optim</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader, Dataset</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设我们有一个简单的数据集类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleDataset</span>(<span class="title class_ inherited__">Dataset</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, data, target</span>):</span><br><span class="line">        <span class="variable language_">self</span>.data = data</span><br><span class="line">        <span class="variable language_">self</span>.target = target</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__len__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(<span class="variable language_">self</span>.data)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__getitem__</span>(<span class="params">self, idx</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.data[idx], <span class="variable language_">self</span>.target[idx]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设我们有一个简单的神经网络模型</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleModel</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, input_dim</span>):</span><br><span class="line">        <span class="built_in">super</span>(SimpleModel, <span class="variable language_">self</span>).__init__()</span><br><span class="line">        <span class="variable language_">self</span>.fc = nn.Linear(input_dim, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        <span class="keyword">return</span> torch.sigmoid(<span class="variable language_">self</span>.fc(x))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设我们有一些数据</span></span><br><span class="line">n_sample = <span class="number">100</span></span><br><span class="line">n_dim = <span class="number">10</span></span><br><span class="line">batch_size = <span class="number">10</span></span><br><span class="line">X = torch.randn(n_sample, n_dim)</span><br><span class="line">Y = torch.randint(<span class="number">0</span>, <span class="number">2</span>, (n_sample, )).<span class="built_in">float</span>()</span><br><span class="line"></span><br><span class="line">dataset = SimpleDataset(X, Y)</span><br><span class="line">data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ===== 注意：刚创建的模型是在 cpu 上的 ===== #</span></span><br><span class="line">device_ids = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>]</span><br><span class="line">model = SimpleModel(n_dim).to(device_ids[<span class="number">0</span>])</span><br><span class="line">model = nn.DataParallel(model, device_ids=device_ids)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">optimizer = optim.SGD(model.parameters(), lr=<span class="number">0.01</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):</span><br><span class="line">    <span class="keyword">for</span> batch_idx, (inputs, targets) <span class="keyword">in</span> <span class="built_in">enumerate</span>(data_loader):</span><br><span class="line">        inputs, targets = inputs.to(<span class="string">&#x27;cuda&#x27;</span>), targets.to(<span class="string">&#x27;cuda&#x27;</span>)</span><br><span class="line">        outputs = model(inputs)</span><br><span class="line">        </span><br><span class="line">        loss = nn.BCELoss()(outputs, targets.unsqueeze(<span class="number">1</span>))</span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;Epoch <span class="subst">&#123;epoch&#125;</span>, Batch <span class="subst">&#123;batch_idx&#125;</span>, Loss: <span class="subst">&#123;loss.item()&#125;</span>&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>其中最重要的一行便是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">model = nn.DataParallel(model, device_ids=device_ids)</span><br></pre></td></tr></table></figure>
+<p>注意，模型的参数和缓冲区都要放在<code>device_ids[0]</code>上。在执行<code>forward</code>函数时，模型会被复制到各个GPU上，对模型的属性进行更新并不会产生效果，因为前向完后各个卡上的模型就被销毁了。<strong>只有在<code>device_ids[0]</code>上对模型的参数或者buffer进行的更新才会生效！</strong></p>
+<h2 id="DistributedDataParallel-DDP"><a href="#DistributedDataParallel-DDP" class="headerlink" title="DistributedDataParallel (DDP)"></a>DistributedDataParallel (DDP)</h2><p><strong>DistributedDataParallel（DDP）</strong> 是 PyTorch 提供的分布式数据并行训练接口，旨在高效地在多 GPU、甚至多机多 GPU 环境下进行训练。与 <code>DataParallel</code>（DP）相比，DDP 具有更高的效率和更好的可扩展性。</p>
+<p><strong>DDP 的核心思想：</strong></p>
+<ul>
+<li><strong>多进程并行</strong>：为每个 GPU 启动一个独立的进程，每个进程负责在其 GPU 上执行模型的前向和反向传播。</li>
+<li><strong>梯度同步</strong>：在反向传播过程中，各进程之间通过通信（如 NCCL 后端）同步梯度，确保模型参数在所有进程中保持一致。</li>
+<li><strong>数据划分</strong>：使用分布式采样器（<code>DistributedSampler</code>），确保每个进程处理的数据不重叠，实现数据并行。</li>
+</ul>
+<h3 id="DDP-的执行流程"><a href="#DDP-的执行流程" class="headerlink" title="DDP 的执行流程"></a>DDP 的执行流程</h3><h4 id="1-准备阶段"><a href="#1-准备阶段" class="headerlink" title="1. 准备阶段"></a>1. <strong>准备阶段</strong></h4><h5 id="a-环境初始化"><a href="#a-环境初始化" class="headerlink" title="a. 环境初始化"></a>a. <strong>环境初始化</strong></h5><ul>
+<li><strong>初始化进程组</strong>：使用 <code>torch.distributed.init_process_group</code>，指定通信后端（如 NCCL）、进程组名称等。</li>
+<li><strong>设置设备</strong>：使用 <code>torch.cuda.set_device(local_rank)</code>，将当前进程绑定到指定的 GPU。</li>
+</ul>
+<h5 id="b-模型广播"><a href="#b-模型广播" class="headerlink" title="b. 模型广播"></a>b. <strong>模型广播</strong></h5><ul>
+<li><strong>创建模型实例</strong>：在各个进程中创建模型实例，并将其移动到对应的 GPU 上。</li>
+<li><strong>封装 DDP 模型</strong>：使用 <code>torch.nn.parallel.DistributedDataParallel</code> 封装模型。</li>
+<li><strong>模型参数广播</strong>：DDP 会在后台自动将模型的参数和缓冲区从主进程广播到其他进程，确保模型初始状态一致。</li>
+</ul>
+<h5 id="c-注册梯度钩子"><a href="#c-注册梯度钩子" class="headerlink" title="c. 注册梯度钩子"></a>c. <strong>注册梯度钩子</strong></h5><ul>
+<li><strong>Reducer 管理器</strong>：DDP 会为模型参数注册梯度钩子，在反向传播过程中自动进行梯度同步。</li>
+</ul>
+<h4 id="2-准备数据"><a href="#2-准备数据" class="headerlink" title="2. 准备数据"></a>2. <strong>准备数据</strong></h4><ul>
+<li><strong>加载数据集</strong>：使用标准的 PyTorch 数据集或自定义数据集。</li>
+<li><strong>创建分布式采样器</strong>：使用 <code>torch.utils.data.distributed.DistributedSampler</code>，确保每个进程加载的数据不重叠。</li>
+<li><strong>创建数据加载器</strong>：将采样器传递给数据加载器，以便在每个 epoch 开始时正确地划分数据。</li>
+</ul>
+<h4 id="3-训练阶段"><a href="#3-训练阶段" class="headerlink" title="3. 训练阶段"></a>3. <strong>训练阶段</strong></h4><h5 id="a-前向传播"><a href="#a-前向传播" class="headerlink" title="a. 前向传播"></a>a. <strong>前向传播</strong></h5><ul>
+<li><strong>模型前向计算</strong>：每个进程使用其本地数据执行模型的前向传播。</li>
+<li><strong>同步参数和缓冲区</strong>：在初始阶段，DDP 已经同步了参数和缓冲区。在训练过程中，缓冲区（如 BatchNorm 的 <code>running_mean</code> 和 <code>running_var</code>）的更新也会被自动同步。</li>
+</ul>
+<h5 id="b-计算梯度"><a href="#b-计算梯度" class="headerlink" title="b. 计算梯度"></a>b. <strong>计算梯度</strong></h5><ul>
+<li><strong>反向传播</strong>：每个进程独立计算梯度。</li>
+<li><strong>梯度同步</strong>：DDP 在后台通过梯度钩子，使用异步的 All-Reduce 操作（如 NCCL）来平均梯度。</li>
+<li><strong>更新梯度状态</strong>：当所有参数的梯度都被同步后，DDP 会将平均梯度写回参数的 <code>.grad</code> 属性。</li>
+</ul>
+<h5 id="c-参数更新"><a href="#c-参数更新" class="headerlink" title="c. 参数更新"></a>c. <strong>参数更新</strong></h5><ul>
+<li><strong>优化器更新参数</strong>：使用优化器（如 SGD、Adam）更新模型参数。</li>
+<li><strong>参数一致性</strong>：由于梯度已被同步，所有进程中的模型参数在更新后仍然保持一致。</li>
+</ul>
+<h4 id="4-循环训练"><a href="#4-循环训练" class="headerlink" title="4. 循环训练"></a>4. <strong>循环训练</strong></h4><ul>
+<li><strong>重复上述步骤</strong>，直到完成所有的训练迭代。</li>
+</ul>
+<p><strong>Demo:</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">from</span> tqdm <span class="keyword">import</span> tqdm</span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader, Dataset</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> torch.distributed <span class="keyword">as</span> dist</span><br><span class="line"><span class="keyword">from</span> torch.nn.parallel <span class="keyword">import</span> DistributedDataParallel <span class="keyword">as</span> DDP</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 基础模块 ### </span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleModel</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, input_dim</span>):</span><br><span class="line">        <span class="built_in">super</span>(SimpleModel, <span class="variable language_">self</span>).__init__()</span><br><span class="line">        <span class="variable language_">self</span>.fc = nn.Linear(input_dim, <span class="number">1</span>)</span><br><span class="line">        cnt = torch.tensor(<span class="number">0</span>)</span><br><span class="line">        <span class="variable language_">self</span>.register_buffer(<span class="string">&#x27;cnt&#x27;</span>, cnt)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        <span class="variable language_">self</span>.cnt += <span class="number">1</span></span><br><span class="line">        <span class="comment"># print(&quot;In forward: &quot;, self.cnt, &quot;Rank: &quot;, self.fc.weight.device)</span></span><br><span class="line">        <span class="keyword">return</span> torch.sigmoid(<span class="variable language_">self</span>.fc(x))</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleDataset</span>(<span class="title class_ inherited__">Dataset</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, data, target</span>):</span><br><span class="line">        <span class="variable language_">self</span>.data = data</span><br><span class="line">        <span class="variable language_">self</span>.target = target</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__len__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(<span class="variable language_">self</span>.data)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__getitem__</span>(<span class="params">self, idx</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.data[idx], <span class="variable language_">self</span>.target[idx]</span><br><span class="line">    </span><br><span class="line"><span class="comment"># 2. 初始化我们的模型、数据、各种配置  ####</span></span><br><span class="line"><span class="comment">## DDP：从外部得到local_rank参数。从外面得到local_rank参数，在调用DDP的时候，其会自动给出这个参数</span></span><br><span class="line">parser = argparse.ArgumentParser()</span><br><span class="line">parser.add_argument(<span class="string">&quot;--local_rank&quot;</span>, default=-<span class="number">1</span>, <span class="built_in">type</span>=<span class="built_in">int</span>)</span><br><span class="line">FLAGS = parser.parse_args()</span><br><span class="line">local_rank = FLAGS.local_rank</span><br><span class="line"></span><br><span class="line"><span class="comment">## DDP：DDP backend初始化</span></span><br><span class="line">torch.cuda.set_device(local_rank)</span><br><span class="line">dist.init_process_group(backend=<span class="string">&#x27;nccl&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">## 假设我们有一些数据</span></span><br><span class="line">n_sample = <span class="number">100</span></span><br><span class="line">n_dim = <span class="number">10</span></span><br><span class="line">batch_size = <span class="number">25</span></span><br><span class="line">X = torch.randn(n_sample, n_dim)  <span class="comment"># 100个样本，每个样本有10个特征</span></span><br><span class="line">Y = torch.randint(<span class="number">0</span>, <span class="number">2</span>, (n_sample, )).<span class="built_in">float</span>()</span><br><span class="line"></span><br><span class="line">dataset = SimpleDataset(X, Y)</span><br><span class="line">sampler = torch.utils.data.distributed.DistributedSampler(dataset)</span><br><span class="line">data_loader = DataLoader(dataset, batch_size=batch_size, sampler=sampler)</span><br><span class="line"></span><br><span class="line"><span class="comment">## 构造模型</span></span><br><span class="line">model = SimpleModel(n_dim).to(local_rank)</span><br><span class="line"><span class="comment">## DDP: Load模型要在构造DDP模型之前，且只需要在master上加载就行了。</span></span><br><span class="line">ckpt_path = <span class="literal">None</span></span><br><span class="line"><span class="keyword">if</span> dist.get_rank() == <span class="number">0</span> <span class="keyword">and</span> ckpt_path <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">    model.load_state_dict(torch.load(ckpt_path))</span><br><span class="line"></span><br><span class="line"><span class="comment">## DDP: 构造DDP model —————— 必须在 init_process_group 之后才可以调用 DDP</span></span><br><span class="line">model = DDP(model, device_ids=[local_rank], output_device=local_rank)</span><br><span class="line"></span><br><span class="line"><span class="comment">## DDP: 要在构造DDP model之后，才能用model初始化optimizer。</span></span><br><span class="line">optimizer = torch.optim.SGD(model.parameters(), lr=<span class="number">0.001</span>)</span><br><span class="line">loss_func = nn.BCELoss().to(local_rank)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 网络训练  ###</span></span><br><span class="line">model.train()</span><br><span class="line">num_epoch = <span class="number">100</span></span><br><span class="line">iterator = tqdm(<span class="built_in">range</span>(<span class="number">100</span>))</span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> iterator:</span><br><span class="line">    <span class="comment"># DDP：设置sampler的epoch，</span></span><br><span class="line">    <span class="comment"># DistributedSampler需要这个来指定shuffle方式，</span></span><br><span class="line">    <span class="comment"># 通过维持各个进程之间的相同随机数种子使不同进程能获得同样的shuffle效果。</span></span><br><span class="line">    data_loader.sampler.set_epoch(epoch)</span><br><span class="line">    <span class="comment"># 后面这部分，则与原来完全一致了。</span></span><br><span class="line">    <span class="keyword">for</span> data, label <span class="keyword">in</span> data_loader:</span><br><span class="line">        data, label = data.to(local_rank), label.to(local_rank)</span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        prediction = model(data)</span><br><span class="line">        loss = loss_func(prediction, label.unsqueeze(<span class="number">1</span>))</span><br><span class="line">        loss.backward()</span><br><span class="line">        iterator.desc = <span class="string">&quot;loss = %0.3f&quot;</span> % loss</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># DDP:</span></span><br><span class="line">    <span class="comment"># 1. save模型的时候，和DP模式一样，有一个需要注意的点：保存的是model.module而不是model。</span></span><br><span class="line">    <span class="comment">#    因为model其实是DDP model，参数是被`model=DDP(model)`包起来的。</span></span><br><span class="line">    <span class="comment"># 2. 只需要在进程0上保存一次就行了，避免多次保存重复的东西。</span></span><br><span class="line">    <span class="keyword">if</span> dist.get_rank() == <span class="number">0</span> <span class="keyword">and</span> epoch == num_epoch - <span class="number">1</span>:</span><br><span class="line">        torch.save(model.module.state_dict(), <span class="string">&quot;%d.ckpt&quot;</span> % epoch)</span><br></pre></td></tr></table></figure>
+<p>结合上面的代码，一个简化版的DDP流程：</p>
+<ol>
+<li>读取DDP相关的配置，其中最关键的就是：<code>local_rank</code>；</li>
+<li>DDP后端初始化：<code>dist.init_process_group</code>；</li>
+<li>创建DDP模型，以及数据加载器。注意要为加载器创建分布式采样器（<code>DistributedSampler</code>）；</li>
+<li>训练。</li>
+</ol>
+<p>DDP的通常启动方式：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">CUDA_VISIBLE_DEVICES</span>=<span class="string">&quot;0,1&quot;</span> python -m torch.distributed.launch --nproc_per_node <span class="number">2</span> ddp.py</span><br></pre></td></tr></table></figure>
+<h3 id="一些概念"><a href="#一些概念" class="headerlink" title="一些概念"></a>一些概念</h3><p>以上过程中涉及到一些陌生的概念，其实走一遍DDP的过程就会很好理解：每个进程是一个独立的训练流程，不同进程之间共享同一份数据。为了避免不同进程使用重复的数据训练，以及训练后同步梯度，进程间需要同步。因此，其中一个重点就是每个进程序号，或者说使用的GPU的序号。</p>
+<ul>
+<li><code>node</code>：节点，可以是物理主机，也可以是容器；</li>
+<li><code>rank</code>和<code>local_rank</code>：都表示进程在整个分布式任务中的编号。<code>rank</code>是进程在全局的编号，<code>local_rank</code>是进程在所在节点上的编号。显然，如果只有一个节点，那么二者是相等的。在启动脚本中的<code>--nproc_per_node</code>即指定一个节点上有多少进程；</li>
+<li><code>world_size</code>：即整个分布式任务中进程的数量。</li>
+</ul>
+<p>你好！你对 <strong>DataParallel（DP）</strong> 和 <strong>DistributedDataParallel（DDP）</strong> 的区别做了一个很好的总结。确实，DP 和 DDP 在实现方式、性能和适用场景上都有显著的不同。在分布式训练的实际应用中，涉及到很多复杂的细节，例如梯度的同步方式、数据采样策略以及进程间的通信等。</p>
+<p>让我进一步深入探讨你提到的几个关键点，以帮助你更全面地理解 DP 和 DDP 的工作机制。</p>
+<hr>
+<h2 id="DP-与-DDP-的区别"><a href="#DP-与-DDP-的区别" class="headerlink" title="DP 与 DDP 的区别"></a>DP 与 DDP 的区别</h2><h3 id="1-并行方式"><a href="#1-并行方式" class="headerlink" title="1. 并行方式"></a><strong>1. 并行方式</strong></h3><ul>
+<li><p><strong>DataParallel（DP）</strong>：</p>
+<ul>
+<li><strong>单进程多线程</strong>：在一个进程中使用多线程实现并行计算。</li>
+<li><strong>模型复制</strong>：在每个前向传播中，将模型复制到多个 GPU 上。</li>
+<li><strong>数据划分</strong>：将输入数据划分成多个子批次，分别送入不同的 GPU。</li>
+</ul>
+</li>
+<li><p><strong>DistributedDataParallel（DDP）</strong>：</p>
+<ul>
+<li><strong>多进程多线程</strong>：为每个 GPU 启动一个独立的进程。</li>
+<li><strong>进程间通信</strong>：通过进程间通信（如 NCCL）来同步梯度和参数。</li>
+<li><strong>更高的并行效率</strong>：避免了 Python 全局解释器锁（GIL）的影响，提升了计算效率。</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-性能差异的原因"><a href="#2-性能差异的原因" class="headerlink" title="2. 性能差异的原因"></a><strong>2. 性能差异的原因</strong></h3><ul>
+<li><p><strong>DP 通常比 DDP 慢，主要原因有：</strong></p>
+<ol>
+<li><p><strong>单进程的 GIL 限制</strong>：DP 使用多线程并行计算，但由于 Python 的 GIL，无法真正实现并行计算，特别是在计算密集型任务中。</p>
+</li>
+<li><p><strong>模型复制和数据划分的开销</strong>：DP 在每次前向传播时都需要将模型复制到各个 GPU，并划分数据，这会增加额外的开销。</p>
+</li>
+<li><p><strong>梯度汇总的瓶颈</strong>：DP 在反向传播时需要将各个 GPU 的梯度汇总到主 GPU，这可能导致通信瓶颈。</p>
+</li>
+</ol>
+</li>
+<li><p><strong>DDP 的优势：</strong></p>
+<ul>
+<li><p><strong>多进程并行，避免 GIL</strong>：每个进程独立运行，GIL 不再成为瓶颈。</p>
+</li>
+<li><p><strong>高效的梯度同步</strong>：使用 All-Reduce 操作，同步梯度更高效。</p>
+</li>
+<li><p><strong>通信开销更低</strong>：DDP 支持 Ring-AllReduce，通信成本随着 GPU 数量的增加而 <strong>相对固定</strong>，而 DP 的通信成本则随着 GPU 数量线性增长。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-适用性"><a href="#3-适用性" class="headerlink" title="3. 适用性"></a><strong>3. 适用性</strong></h3><ul>
+<li><p><strong>DP 只能在单机上工作</strong>，适用于小规模的多 GPU 训练。</p>
+</li>
+<li><p><strong>DDP 可以在多机多卡上工作</strong>，适用于大规模的分布式训练。</p>
+</li>
+</ul>
+<h3 id="4-模型并行的结合"><a href="#4-模型并行的结合" class="headerlink" title="4. 模型并行的结合"></a><strong>4. 模型并行的结合</strong></h3><ul>
+<li><strong>DDP 可以与模型并行相结合</strong>：在需要模型并行的场景下，可以将模型的不同部分分配到不同的 GPU 上，同时使用 DDP 进行数据并行。</li>
+</ul>
+<hr>
+<h2 id="二、DP-与-DDP-中梯度的回收方式"><a href="#二、DP-与-DDP-中梯度的回收方式" class="headerlink" title="二、DP 与 DDP 中梯度的回收方式"></a><strong>二、DP 与 DDP 中梯度的回收方式</strong></h2><h3 id="1-DP-中的梯度回收"><a href="#1-DP-中的梯度回收" class="headerlink" title="1. DP 中的梯度回收"></a><strong>1. DP 中的梯度回收</strong></h3><ul>
+<li><p><strong>梯度计算</strong>：在每个 GPU 上，模型副本计算其子批次数据的梯度。</p>
+</li>
+<li><p><strong>梯度汇总</strong>：所有 GPU 的梯度会被收集到主 GPU（<code>device_ids[0]</code>）上，进行汇总。</p>
+</li>
+<li><p><strong>参数更新</strong>：在主 GPU 上更新模型参数。</p>
+</li>
+<li><p><strong>问题</strong>：</p>
+<ul>
+<li><p><strong>通信瓶颈</strong>：所有梯度都需要传输到主 GPU，通信量大。</p>
+</li>
+<li><p><strong>主 GPU 的负载过重</strong>：主 GPU 需要负责梯度汇总和参数更新，可能成为性能瓶颈。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-DDP-中的梯度回收"><a href="#2-DDP-中的梯度回收" class="headerlink" title="2. DDP 中的梯度回收"></a><strong>2. DDP 中的梯度回收</strong></h3><ul>
+<li><p><strong>梯度计算</strong>：每个进程独立计算其负责的数据的梯度。</p>
+</li>
+<li><p><strong>梯度同步（All-Reduce 操作）</strong>：</p>
+<ul>
+<li><p><strong>All-Reduce</strong>：将所有进程的梯度进行求和，然后平均分发回每个进程。</p>
+</li>
+<li><p><strong>异步通信</strong>：DDP 采用异步的 All-Reduce 操作，可以与计算重叠，减少等待时间。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>参数更新</strong>：每个进程使用同步后的平均梯度，更新本地的模型参数。</p>
+</li>
+<li><p><strong>优势</strong>：</p>
+<ul>
+<li><p><strong>通信效率高</strong>：All-Reduce 操作的通信开销相对固定，不会随着 GPU 数量的增加而线性增长。</p>
+</li>
+<li><p><strong>没有单点瓶颈</strong>：所有进程同时参与通信和计算，避免了主 GPU 的瓶颈。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-通信成本对比"><a href="#3-通信成本对比" class="headerlink" title="3. 通信成本对比"></a><strong>3. 通信成本对比</strong></h3><ul>
+<li><p><strong>DP 的通信成本</strong>：</p>
+<ul>
+<li><p>随着 GPU 数量的增加，通信成本 <strong>线性增长</strong>。</p>
+</li>
+<li><p>主 GPU 需要收集和广播梯度，通信量大。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>DDP 的通信成本</strong>：</p>
+<ul>
+<li><p>使用 Ring-AllReduce，通信成本 <strong>相对固定</strong>。</p>
+</li>
+<li><p>通信效率随着 GPU 数量的增加而 <strong>更高效</strong>。</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="三、DDP-中数据采样的细节"><a href="#三、DDP-中数据采样的细节" class="headerlink" title="三、DDP 中数据采样的细节"></a><strong>三、DDP 中数据采样的细节</strong></h2><h3 id="1-为什么需要-DistributedSampler"><a href="#1-为什么需要-DistributedSampler" class="headerlink" title="1. 为什么需要 DistributedSampler"></a><strong>1. 为什么需要 <code>DistributedSampler</code></strong></h3><ul>
+<li><p><strong>数据划分的必要性</strong>：在 DDP 中，每个进程都独立运行，为了避免不同进程处理相同的数据（数据重叠），需要确保每个进程处理的数据是互不重叠的子集。</p>
+</li>
+<li><p><strong><code>DistributedSampler</code> 的作用</strong>：</p>
+<ul>
+<li><p><strong>划分数据集</strong>：将数据集划分为若干份，每个进程处理其中一份。</p>
+</li>
+<li><p><strong>确保随机性一致</strong>：在每个 epoch 开始时，通过设置相同的随机种子，确保各进程的数据划分方式一致。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-DistributedSampler-的工作机制"><a href="#2-DistributedSampler-的工作机制" class="headerlink" title="2. DistributedSampler 的工作机制"></a><strong>2. <code>DistributedSampler</code> 的工作机制</strong></h3><ul>
+<li><p><strong>分割数据集</strong>：根据 <code>world_size</code>（总进程数）和 <code>rank</code>（当前进程编号），计算当前进程应该处理的数据索引范围。</p>
+</li>
+<li><p><strong>处理数据不重叠</strong>：不同进程处理的数据索引范围不重叠，确保了数据并行。</p>
+</li>
+<li><p><strong>支持数据随机打乱</strong>：在每个 epoch，可以通过设置不同的随机种子，实现数据的随机打乱。</p>
+</li>
+</ul>
+<h3 id="3-设置-sampler-set-epoch-epoch-的必要性"><a href="#3-设置-sampler-set-epoch-epoch-的必要性" class="headerlink" title="3. 设置 sampler.set_epoch(epoch) 的必要性"></a><strong>3. 设置 <code>sampler.set_epoch(epoch)</code> 的必要性</strong></h3><ul>
+<li><p><strong>原因</strong>：</p>
+<ul>
+<li><p><strong>确保数据乱序的一致性</strong>：在每个 epoch 开始时，需要为 <code>DistributedSampler</code> 设置 epoch，以确保所有进程的数据乱序方式一致。</p>
+</li>
+<li><p><strong>避免数据重复或遗漏</strong>：不同进程在数据乱序时，如果不设置相同的种子，可能导致数据重复或遗漏，影响模型训练的正确性。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>使用方法</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data_loader.sampler.set_epoch(epoch)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<hr>
+<h2 id="四、DDP-中的数据同步操作"><a href="#四、DDP-中的数据同步操作" class="headerlink" title="四、DDP 中的数据同步操作"></a><strong>四、DDP 中的数据同步操作</strong></h2><h3 id="1-模型参数和缓冲区的同步"><a href="#1-模型参数和缓冲区的同步" class="headerlink" title="1. 模型参数和缓冲区的同步"></a><strong>1. 模型参数和缓冲区的同步</strong></h3><ul>
+<li><p><strong>初始同步</strong>：</p>
+<ul>
+<li><strong>参数广播</strong>：在 DDP 初始化时，自动将主进程（<code>rank == 0</code>）的模型参数和缓冲区广播到其他进程，确保所有进程的模型状态一致。</li>
+</ul>
+</li>
+<li><p><strong>缓冲区的同步</strong>：</p>
+<ul>
+<li><p><strong>自动同步</strong>：在前向和反向传播过程中，DDP 会自动同步模型的缓冲区（如 BatchNorm 的 <code>running_mean</code> 和 <code>running_var</code>）。</p>
+</li>
+<li><p><strong>确保一致性</strong>：使得模型在所有进程中的缓冲区状态保持一致。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-梯度的同步（All-Reduce-操作）"><a href="#2-梯度的同步（All-Reduce-操作）" class="headerlink" title="2. 梯度的同步（All-Reduce 操作）"></a><strong>2. 梯度的同步（All-Reduce 操作）</strong></h3><ul>
+<li><p><strong>注册梯度钩子</strong>：DDP 为每个模型参数注册了梯度钩子，当参数的梯度计算完成后，自动触发 All-Reduce 操作。</p>
+</li>
+<li><p><strong>All-Reduce 的过程</strong>：</p>
+<ul>
+<li><p><strong>梯度求和</strong>：将所有进程的对应参数的梯度相加。</p>
+</li>
+<li><p><strong>梯度平均</strong>：将总和除以进程数，得到平均梯度。</p>
+</li>
+<li><p><strong>同步更新</strong>：将平均梯度分发回各个进程，更新模型参数。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-通信操作的处理"><a href="#3-通信操作的处理" class="headerlink" title="3. 通信操作的处理"></a><strong>3. 通信操作的处理</strong></h3><ul>
+<li><p><strong>通信后端</strong>：通常使用高效的通信库（如 NCCL）进行进程间通信。</p>
+</li>
+<li><p><strong>通信模式</strong>：</p>
+<ul>
+<li><p><strong>Broadcast（广播）</strong>：用于初始参数和缓冲区的同步。</p>
+</li>
+<li><p><strong>All-Reduce</strong>：用于梯度的同步。</p>
+</li>
+<li><p><strong>异步通信</strong>：DDP 采用异步通信机制，通信和计算可以重叠，减少等待时间。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>用户无需干预</strong>：这些通信操作都由 DDP 在后台自动处理，用户不需要手动编写通信代码。</p>
+</li>
+</ul>
+<hr>
+<h2 id="五、基于真实需求的实践体会"><a href="#五、基于真实需求的实践体会" class="headerlink" title="五、基于真实需求的实践体会"></a><strong>五、基于真实需求的实践体会</strong></h2><ul>
+<li><p><strong>复杂性与细节</strong>：在分布式训练中，涉及到很多复杂的细节，包括通信机制、数据同步、随机性控制等。</p>
+</li>
+<li><p><strong>实践的重要性</strong>：只有在真实的项目中，面对具体的需求和挑战，才能深入理解并解决分布式训练中的各种问题。</p>
+</li>
+<li><p><strong>建议</strong>：</p>
+<ul>
+<li><p><strong>深入学习 PyTorch 官方文档和示例</strong>：了解 DDP 的详细使用方法和注意事项。</p>
+</li>
+<li><p><strong>从小规模实验开始</strong>：先在单机多 GPU 环境下实践 DDP，熟悉其工作机制。</p>
+</li>
+<li><p><strong>逐步扩展到多机环境</strong>：在熟悉基本原理后，可以尝试在多机多卡的环境下进行训练，处理更多的实际问题。</p>
+</li>
+<li><p><strong>关注性能优化</strong>：在实践中，可以针对通信开销、数据加载效率、模型并行等方面进行优化，提升训练性能。</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a><strong>六、总结</strong></h2><ul>
+<li><p><strong>DP 与 DDP 的主要区别</strong>在于并行方式、通信机制和性能表现。</p>
+</li>
+<li><p><strong>DP 的局限性</strong>：</p>
+<ul>
+<li><p>受限于 GIL，无法充分利用多核 CPU 和多 GPU 的计算能力。</p>
+</li>
+<li><p>通信开销随着 GPU 数量线性增长，主 GPU 可能成为瓶颈。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>DDP 的优势</strong>：</p>
+<ul>
+<li><p>采用多进程并行，避开 GIL 限制，充分利用硬件资源。</p>
+</li>
+<li><p>使用高效的 All-Reduce 操作，同步梯度和参数，通信开销低。</p>
+</li>
+<li><p>支持多机多卡，具有良好的扩展性。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>实践中需要注意的细节</strong>：</p>
+<ul>
+<li><p>正确设置数据采样器，确保数据不重叠。</p>
+</li>
+<li><p>理解梯度同步和参数更新的机制。</p>
+</li>
+<li><p>熟悉 DDP 的启动和配置方法。</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/12/05/DP%E5%92%8CDDP/" data-id="cm4boxx5h0004ykfybz46f5ll" data-title="DP和DDP" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2024/12/05/DeepSpeed%E7%9B%B8%E5%85%B3/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          DeepSpeed相关
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2024/12/05/%E5%8D%83%E9%97%AE%E7%9B%B8%E5%85%B3/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">千问相关</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/12/">December 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2024/12/06/MoE-Rag-Peft-RLHF-DPO/">MoE_Rag_Peft_RLHF_DPO</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/05/Olmo%E5%8F%8Adolma%E5%AE%9E%E8%B7%B5/">Olmo及dolma实践</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/05/DeepSpeed%E7%9B%B8%E5%85%B3/">DeepSpeed相关</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/05/DP%E5%92%8CDDP/">DP和DDP</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/05/%E5%8D%83%E9%97%AE%E7%9B%B8%E5%85%B3/">千问相关</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2024 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+</body>
+</html>

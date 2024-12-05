@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>LLaMa系列 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="1. LLaMa系列1.1 原始llama1.1.1 简介 LLama 模型集合由 Meta AI 于 2023 年 2 月推出， 包括四种尺寸(7B 、13B 、30B 和 65B)。上下文长度2048.  Meta在2023年7月发布了免费可商用版本 Llama-2，有7B、13B、34B和70B四个参数量版本，除了34B模型均已开源。模型的上下文长度从2048翻倍到了4096.  进入202">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LLaMa系列">
+<meta property="og:url" content="http://example.com/2024/12/05/LLaMa%E7%B3%BB%E5%88%97/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. LLaMa系列1.1 原始llama1.1.1 简介 LLama 模型集合由 Meta AI 于 2023 年 2 月推出， 包括四种尺寸(7B 、13B 、30B 和 65B)。上下文长度2048.  Meta在2023年7月发布了免费可商用版本 Llama-2，有7B、13B、34B和70B四个参数量版本，除了34B模型均已开源。模型的上下文长度从2048翻倍到了4096.  进入202">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2024/12/05/LLaMa%E7%B3%BB%E5%88%97/img/llama1-model.png">
+<meta property="og:image" content="http://example.com/2024/12/05/LLaMa%E7%B3%BB%E5%88%97/img/rope-%E5%85%AC%E5%BC%8F.png">
+<meta property="og:image" content="http://example.com/2024/12/05/LLaMa%E7%B3%BB%E5%88%97/img/rope-%E5%BD%A2%E8%B1%A1%E7%90%86%E8%A7%A3.png">
+<meta property="og:image" content="http://example.com/2024/12/05/LLaMa%E7%B3%BB%E5%88%97/img/swiglu.png">
+<meta property="og:image" content="http://example.com/2024/12/05/LLaMa%E7%B3%BB%E5%88%97/img/llama2-model.png">
+<meta property="og:image" content="http://example.com/2024/12/05/LLaMa%E7%B3%BB%E5%88%97/img/GQA.png">
+<meta property="og:image" content="http://example.com/2024/12/05/LLaMa%E7%B3%BB%E5%88%97/img/slide-window-attention.png">
+<meta property="article:published_time" content="2024-12-05T12:10:20.000Z">
+<meta property="article:modified_time" content="2024-12-05T14:17:02.639Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2024/12/05/LLaMa%E7%B3%BB%E5%88%97/img/llama1-model.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-LLaMa系列" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/12/05/LLaMa%E7%B3%BB%E5%88%97/" class="article-date">
+  <time class="dt-published" datetime="2024-12-05T12:10:20.000Z" itemprop="datePublished">2024-12-05</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      LLaMa系列
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="1-LLaMa系列"><a href="#1-LLaMa系列" class="headerlink" title="1. LLaMa系列"></a>1. LLaMa系列</h1><h2 id="1-1-原始llama"><a href="#1-1-原始llama" class="headerlink" title="1.1 原始llama"></a>1.1 原始llama</h2><h3 id="1-1-1-简介"><a href="#1-1-1-简介" class="headerlink" title="1.1.1 简介"></a>1.1.1 简介</h3><ul>
+<li><p><strong>LLama 模型</strong>集合由 <strong>Meta AI</strong> 于 2023 年 2 月推出， 包括四种尺寸(7B 、13B 、30B 和 65B)。上下文长度<strong>2048</strong>.</p>
+</li>
+<li><p>Meta在2023年7月发布了免费可商用版本 <strong>Llama-2</strong>，有7B、13B、34B和70B四个参数量版本，除了34B模型均已开源。模型的上下文长度从<strong>2048</strong>翻倍到了<strong>4096</strong>.</p>
+</li>
+<li><p>进入2024年4月18日，Meta发布 <strong>LLama 3</strong>。LLama 3在技术层面实现了重大突破，其最大版本的参数量飙升至超过<strong>405B</strong></p>
+</li>
+<li><p>7月23日, <strong>LLama3.1</strong>发布, 上下文长度可达128k, 几乎就是一本书的长度了</p>
+</li>
+</ul>
+<h3 id="1-1-2-沿革"><a href="#1-1-2-沿革" class="headerlink" title="1.1.2 沿革"></a>1.1.2 沿革</h3><h4 id="1-1-2-1-模型结构沿革"><a href="#1-1-2-1-模型结构沿革" class="headerlink" title="1.1.2.1 模型结构沿革"></a>1.1.2.1 模型结构沿革</h4><ul>
+<li><p><strong>llama1</strong>, 先上图:<br><img src="img/llama1-model.png" alt="llama1 模型结构"><br>值得一讲的模块有<code>RMSNorm</code>, <code>Causal Mask</code>, <code>RoPE</code>, 以及上面的<code>Swi-GLU</code>. 那咱就结合代码一点点搞吧</p>
+<ul>
+<li><p><strong><code>RMSNorm</code></strong> 其主要基于<code>LayerNorm</code>移除了re-center操作, 并且通过实验证明之做到了“降本不降效”(计算时间减少7%-64%不等). 具体公式如下, RMS就是均方误差根:<br>$y = \frac{x - \mathbb{E}(x)}{\sqrt{\text{Var}(x) + \epsilon}} \cdot \gamma + \beta$</p>
+<p>$\bar{a}_i = \frac{a_i}{\text{RMS}(a)} g_i, \quad \text{RMS}(a) = \sqrt{\frac{1}{n} \sum_{i=1}^{n} a_i^2}$</p>
+<p>现在来看看代码, <code>LN</code>就不看了, 只看<code>RMSNorm</code>的:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">RMSNorm</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, d, p=-<span class="number">1.</span>, eps=<span class="number">1e-8</span>, bias=<span class="literal">False</span></span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">            Root Mean Square Layer Normalization</span></span><br><span class="line"><span class="string">        :param d: model size</span></span><br><span class="line"><span class="string">        :param p: partial RMSNorm, valid value [0, 1], default -1.0 (disabled)</span></span><br><span class="line"><span class="string">        :param eps:  epsilon value, default 1e-8</span></span><br><span class="line"><span class="string">        :param bias: whether use bias term for RMSNorm, disabled by</span></span><br><span class="line"><span class="string">            default because RMSNorm doesn&#x27;t enforce re-centering invariance.</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        <span class="built_in">super</span>(RMSNorm, <span class="variable language_">self</span>).__init__()</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">self</span>.eps = eps</span><br><span class="line">        <span class="variable language_">self</span>.d = d</span><br><span class="line">        <span class="variable language_">self</span>.p = p</span><br><span class="line">        <span class="variable language_">self</span>.bias = bias</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">self</span>.scale = nn.Parameter(torch.ones(d))</span><br><span class="line">        <span class="variable language_">self</span>.register_parameter(<span class="string">&quot;scale&quot;</span>, <span class="variable language_">self</span>.scale)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.bias:</span><br><span class="line">            <span class="variable language_">self</span>.offset = nn.Parameter(torch.zeros(d))</span><br><span class="line">            <span class="variable language_">self</span>.register_parameter(<span class="string">&quot;offset&quot;</span>, <span class="variable language_">self</span>.offset)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.p &lt; <span class="number">0.</span> <span class="keyword">or</span> <span class="variable language_">self</span>.p &gt; <span class="number">1.</span>:</span><br><span class="line">            norm_x = x.norm(<span class="number">2</span>, dim=-<span class="number">1</span>, keepdim=<span class="literal">True</span>)</span><br><span class="line">            d_x = <span class="variable language_">self</span>.d</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            partial_size = <span class="built_in">int</span>(<span class="variable language_">self</span>.d * <span class="variable language_">self</span>.p)</span><br><span class="line">            partial_x, _ = torch.split(x, [partial_size, <span class="variable language_">self</span>.d - partial_size], dim=-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">            norm_x = partial_x.norm(<span class="number">2</span>, dim=-<span class="number">1</span>, keepdim=<span class="literal">True</span>)</span><br><span class="line">            d_x = partial_size</span><br><span class="line"></span><br><span class="line">        rms_x = norm_x * d_x ** (-<span class="number">1.</span> / <span class="number">2</span>)</span><br><span class="line">        x_normed = x / (rms_x + <span class="variable language_">self</span>.eps)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.bias:</span><br><span class="line">            <span class="keyword">return</span> <span class="variable language_">self</span>.scale * x_normed + <span class="variable language_">self</span>.offset</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.scale * x_normed</span><br></pre></td></tr></table></figure>
+<p>值得注意在实际应用中还多了一个<code>partial</code>选项, 另一半被partial掉的就不参与计算了, 怀疑一个深意是实验结果表明RMS没必要在token的d维度全部(换言之所有头)做计算. <strong>下去琢磨琢磨</strong> </p>
+</li>
+<li><p><code>causal_mask</code>(顺道提一嘴BERT里的<code>label=-100</code>)</p>
+<ul>
+<li>上图中<code>causal_mask</code>实际上是一个shape为<code>num_tokens_per_sample</code>*<code>num_tokens_per_sample</code>的下三角矩阵, 下三角的值你既可以填<code>-10000</code>也可以填<code>-inf</code>.</li>
+<li>这种 <strong>causal mask</strong>真的十分巧妙, 每个token只能看到它后面的token了, 让decoder-only结构的模型训练如此高效!</li>
+<li>具体而言,</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">q = <span class="variable language_">self</span>.query(x)</span><br><span class="line">k = <span class="variable language_">self</span>.key(x)</span><br><span class="line">v = <span class="variable language_">self</span>.value(x)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 多头</span></span><br><span class="line">q = rearrange(q, <span class="string">&#x27;b p (n_he d_h) -&gt; b n_he p d_h&#x27;</span>, n_he = <span class="variable language_">self</span>.num_heads, d_h = <span class="variable language_">self</span>.head_dim)</span><br><span class="line">k = rearrange(k, <span class="string">&#x27;b p (n_he d_h) -&gt; b n_he p d_h&#x27;</span>, n_he = <span class="variable language_">self</span>.num_heads, d_h = <span class="variable language_">self</span>.head_dim)</span><br><span class="line">v = rearrange(v, <span class="string">&#x27;b p (n_he d_h) -&gt; b n_he p d_h&#x27;</span>, n_he = <span class="variable language_">self</span>.num_heads, d_h = <span class="variable language_">self</span>.head_dim)</span><br><span class="line"></span><br><span class="line">qk = torch.matmul(q, k.transpose(-<span class="number">1</span>,-<span class="number">2</span>))*mask</span><br><span class="line"></span><br><span class="line">qk = F.softmax(qk, dim=-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">qkv = torch.matmul(qk, v.transpose(-<span class="number">1</span>,-<span class="number">2</span>))</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> rearrange(qkv, <span class="string">&#x27;b n_he p d_h -&gt; b p (n_he d_h)&#x27;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>RoPE</code>, 一图胜千言:<br><img src="./img/rope-公式.png" alt="RoPE公式"><br><img src="./img/rope-形象理解.png" alt="RoPE示意"></p>
+</li>
+<li><p><code>Swi-GLU</code>, 顺便复习下glu<br><img src="./img/swiglu.png" alt="SwiGLU"></p>
+<blockquote>
+<p>GLU(Gated Linear Units,门控线性单元)引入了两个不同的线性层，其中一个首先经过sigmoid函数，其结果将和另一个线性层的输出进行逐元素相乘作为最终的输出<br>$\text{GLU}(x, W, V, b, c) = \sigma(xW + b) \otimes (xV + c)$</p>
+</blockquote>
+<p>SiLU就不用说了,$x*\sigma(\beta x)$, 经典激活函数</p>
+<p><code>up</code>和<code>down</code>一般是四倍的上下采样线形层. </p>
+</li>
+</ul>
+</li>
+<li><p><strong>llama2</strong><br>  核心就是引入了<strong>GQA</strong>,见下图:<br>  <img src="./img/llama2-model.png" alt="llama2-model"></p>
+<p>  虽然现在的算力, 一个sample 4096个token根本算不上什么, 但还是一讲, 先上图:<br>  <img src="./img/GQA.png" alt="GQA"></p>
+<ul>
+<li>GQA-1：一个单独的组，等同于 Multi-Query Attention (MQA)。</li>
+<li>GQA-H：组数等于头数，基本上与 Multi-Head Attention (MHA) 相同。</li>
+<li><p>GQA-G：一个中间配置，具有G个组，平衡了效率和表达能力。</p>
+<p>代码也没必要放了, 已加入torch全家桶, 就是把<code>v</code>,<code>k</code>用<code>torch.chunk</code> 了一下, 不过我们有必要顺带讲一嘴滑动窗口注意力:</p>
+<blockquote>
+<p>每一个token只和包含其本身在内的前W个token做Attention。最简单的实现其实就是给不需要计算attention的其它token都加上一个mask就可以了</p>
+</blockquote>
+<p>一图胜千言:<br><img src="./img/slide-window-attention.png" alt="SWA"></p>
+</li>
+</ul>
+</li>
+<li><p><strong>llama3</strong><br>似乎在结构上没有大的创新(这就是scaling的威力吗…), 不过引入了“<a target="_blank" rel="noopener" href="https://github.com/facebookresearch/fairscale/blob/main/fairscale/nn/model_parallel/layers.py">parallel layers from Fairscale</a>”去并行加速矩阵运算, <strong>有时间看看,并加到这或者单开一章</strong></p>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/12/05/LLaMa%E7%B3%BB%E5%88%97/" data-id="cm4bei79k0000xufyhx4kd9b6" data-title="LLaMa系列" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2024/12/05/%E5%8D%83%E9%97%AE%E7%9B%B8%E5%85%B3/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          千问相关
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2024/11/23/Magvit%E7%B3%BB%E5%88%97/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Open-MAGVIT-2</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/12/">December 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2024/12/06/MoE-Rag-Peft-RLHF-DPO/">MoE_Rag_Peft_RLHF_DPO</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/05/Olmo%E5%8F%8Adolma%E5%AE%9E%E8%B7%B5/">Olmo及dolma实践</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/05/DeepSpeed%E7%9B%B8%E5%85%B3/">DeepSpeed相关</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/05/DP%E5%92%8CDDP/">DP和DDP</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/05/%E5%8D%83%E9%97%AE%E7%9B%B8%E5%85%B3/">千问相关</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2024 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+</body>
+</html>
