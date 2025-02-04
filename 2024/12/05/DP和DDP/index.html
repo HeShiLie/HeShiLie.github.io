@@ -14,7 +14,7 @@
 <meta property="og:description" content="首先 DP 和 DDP 都只是 数据并行 并不涉及到 模型权重 的拆分。  DataParallel (DP)DP是较简单的一种数据并行方式，直接将模型复制到多个GPU上并行计算，每个GPU计算batch中的一部分数据，各自完成前向和反向后，将梯度汇总到主GPU上。其基本流程：  加载模型、数据至内存； 创建DP模型； DP模型的forward过程： 一个batch的数据均分到不同device上">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-12-05T14:20:09.000Z">
-<meta property="article:modified_time" content="2024-12-05T17:48:40.073Z">
+<meta property="article:modified_time" content="2024-12-06T03:43:52.603Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -33,7 +33,119 @@
 
   
   
-<meta name="generator" content="Hexo 7.3.0"></head>
+<meta name="generator" content="Hexo 7.3.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
 
 <body>
   <div id="container">
@@ -112,7 +224,7 @@
 </ol>
 <p>在DP中，只有一个主进程，主进程下有多个线程，每个线程管理一个device的训练。因此，DP中内存中只存在一份数据，各个线程间是共享这份数据的。DP和Parameter Server的方式很像。</p>
 <p><strong>Demo:</strong></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">import</span> torch.optim <span class="keyword">as</span> optim</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader, Dataset</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设我们有一个简单的数据集类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleDataset</span>(<span class="title class_ inherited__">Dataset</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, data, target</span>):</span><br><span class="line">        <span class="variable language_">self</span>.data = data</span><br><span class="line">        <span class="variable language_">self</span>.target = target</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__len__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(<span class="variable language_">self</span>.data)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__getitem__</span>(<span class="params">self, idx</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.data[idx], <span class="variable language_">self</span>.target[idx]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设我们有一个简单的神经网络模型</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleModel</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, input_dim</span>):</span><br><span class="line">        <span class="built_in">super</span>(SimpleModel, <span class="variable language_">self</span>).__init__()</span><br><span class="line">        <span class="variable language_">self</span>.fc = nn.Linear(input_dim, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        <span class="keyword">return</span> torch.sigmoid(<span class="variable language_">self</span>.fc(x))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设我们有一些数据</span></span><br><span class="line">n_sample = <span class="number">100</span></span><br><span class="line">n_dim = <span class="number">10</span></span><br><span class="line">batch_size = <span class="number">10</span></span><br><span class="line">X = torch.randn(n_sample, n_dim)</span><br><span class="line">Y = torch.randint(<span class="number">0</span>, <span class="number">2</span>, (n_sample, )).<span class="built_in">float</span>()</span><br><span class="line"></span><br><span class="line">dataset = SimpleDataset(X, Y)</span><br><span class="line">data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ===== 注意：刚创建的模型是在 cpu 上的 ===== #</span></span><br><span class="line">device_ids = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>]</span><br><span class="line">model = SimpleModel(n_dim).to(device_ids[<span class="number">0</span>])</span><br><span class="line">model = nn.DataParallel(model, device_ids=device_ids)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">optimizer = optim.SGD(model.parameters(), lr=<span class="number">0.01</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):</span><br><span class="line">    <span class="keyword">for</span> batch_idx, (inputs, targets) <span class="keyword">in</span> <span class="built_in">enumerate</span>(data_loader):</span><br><span class="line">        inputs, targets = inputs.to(<span class="string">&#x27;cuda&#x27;</span>), targets.to(<span class="string">&#x27;cuda&#x27;</span>)</span><br><span class="line">        outputs = model(inputs)</span><br><span class="line">        </span><br><span class="line">        loss = nn.BCELoss()(outputs, targets.unsqueeze(<span class="number">1</span>))</span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;Epoch <span class="subst">&#123;epoch&#125;</span>, Batch <span class="subst">&#123;batch_idx&#125;</span>, Loss: <span class="subst">&#123;loss.item()&#125;</span>&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">import</span> torch.optim <span class="keyword">as</span> optim</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader, Dataset</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设我们有一个简单的数据集类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleDataset</span>(<span class="title class_ inherited__">Dataset</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, data, target</span>):</span><br><span class="line">        <span class="variable language_">self</span>.data = data</span><br><span class="line">        <span class="variable language_">self</span>.target = target</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__len__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(<span class="variable language_">self</span>.data)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__getitem__</span>(<span class="params">self, idx</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.data[idx], <span class="variable language_">self</span>.target[idx]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设我们有一个简单的神经网络模型</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleModel</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, input_dim</span>):</span><br><span class="line">        <span class="built_in">super</span>(SimpleModel, <span class="variable language_">self</span>).__init__()</span><br><span class="line">        <span class="variable language_">self</span>.fc = nn.Linear(input_dim, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        <span class="keyword">return</span> torch.sigmoid(<span class="variable language_">self</span>.fc(x))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设我们有一些数据</span></span><br><span class="line">n_sample = <span class="number">100</span></span><br><span class="line">n_dim = <span class="number">10</span></span><br><span class="line">batch_size = <span class="number">10</span></span><br><span class="line">X = torch.randn(n_sample, n_dim)</span><br><span class="line">Y = torch.randint(<span class="number">0</span>, <span class="number">2</span>, (n_sample, )).<span class="built_in">float</span>()</span><br><span class="line"></span><br><span class="line">dataset = SimpleDataset(X, Y)</span><br><span class="line">data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ===== 注意：刚创建的模型是在 cpu 上的 ===== #</span></span><br><span class="line">device_ids = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>]</span><br><span class="line">model = SimpleModel(n_dim).to(device_ids[<span class="number">0</span>])</span><br><span class="line">model = nn.DataParallel(model, device_ids=device_ids)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">optimizer = optim.SGD(model.parameters(), lr=<span class="number">0.01</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):</span><br><span class="line">    <span class="keyword">for</span> batch_idx, (inputs, targets) <span class="keyword">in</span> <span class="built_in">enumerate</span>(data_loader):</span><br><span class="line">        inputs, targets = inputs.to(<span class="string">'cuda'</span>), targets.to(<span class="string">'cuda'</span>)</span><br><span class="line">        outputs = model(inputs)</span><br><span class="line">        </span><br><span class="line">        loss = nn.BCELoss()(outputs, targets.unsqueeze(<span class="number">1</span>))</span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f'Epoch <span class="subst">{epoch}</span>, Batch <span class="subst">{batch_idx}</span>, Loss: <span class="subst">{loss.item()}</span>'</span>)</span><br></pre></td></tr></table></figure>
 <p>其中最重要的一行便是：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">model = nn.DataParallel(model, device_ids=device_ids)</span><br></pre></td></tr></table></figure>
 <p>注意，模型的参数和缓冲区都要放在<code>device_ids[0]</code>上。在执行<code>forward</code>函数时，模型会被复制到各个GPU上，对模型的属性进行更新并不会产生效果，因为前向完后各个卡上的模型就被销毁了。<strong>只有在<code>device_ids[0]</code>上对模型的参数或者buffer进行的更新才会生效！</strong></p>
@@ -157,7 +269,7 @@
 <li><strong>重复上述步骤</strong>，直到完成所有的训练迭代。</li>
 </ul>
 <p><strong>Demo:</strong></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">from</span> tqdm <span class="keyword">import</span> tqdm</span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader, Dataset</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> torch.distributed <span class="keyword">as</span> dist</span><br><span class="line"><span class="keyword">from</span> torch.nn.parallel <span class="keyword">import</span> DistributedDataParallel <span class="keyword">as</span> DDP</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 基础模块 ### </span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleModel</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, input_dim</span>):</span><br><span class="line">        <span class="built_in">super</span>(SimpleModel, <span class="variable language_">self</span>).__init__()</span><br><span class="line">        <span class="variable language_">self</span>.fc = nn.Linear(input_dim, <span class="number">1</span>)</span><br><span class="line">        cnt = torch.tensor(<span class="number">0</span>)</span><br><span class="line">        <span class="variable language_">self</span>.register_buffer(<span class="string">&#x27;cnt&#x27;</span>, cnt)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        <span class="variable language_">self</span>.cnt += <span class="number">1</span></span><br><span class="line">        <span class="comment"># print(&quot;In forward: &quot;, self.cnt, &quot;Rank: &quot;, self.fc.weight.device)</span></span><br><span class="line">        <span class="keyword">return</span> torch.sigmoid(<span class="variable language_">self</span>.fc(x))</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleDataset</span>(<span class="title class_ inherited__">Dataset</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, data, target</span>):</span><br><span class="line">        <span class="variable language_">self</span>.data = data</span><br><span class="line">        <span class="variable language_">self</span>.target = target</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__len__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(<span class="variable language_">self</span>.data)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__getitem__</span>(<span class="params">self, idx</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.data[idx], <span class="variable language_">self</span>.target[idx]</span><br><span class="line">    </span><br><span class="line"><span class="comment"># 2. 初始化我们的模型、数据、各种配置  ####</span></span><br><span class="line"><span class="comment">## DDP：从外部得到local_rank参数。从外面得到local_rank参数，在调用DDP的时候，其会自动给出这个参数</span></span><br><span class="line">parser = argparse.ArgumentParser()</span><br><span class="line">parser.add_argument(<span class="string">&quot;--local_rank&quot;</span>, default=-<span class="number">1</span>, <span class="built_in">type</span>=<span class="built_in">int</span>)</span><br><span class="line">FLAGS = parser.parse_args()</span><br><span class="line">local_rank = FLAGS.local_rank</span><br><span class="line"></span><br><span class="line"><span class="comment">## DDP：DDP backend初始化</span></span><br><span class="line">torch.cuda.set_device(local_rank)</span><br><span class="line">dist.init_process_group(backend=<span class="string">&#x27;nccl&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">## 假设我们有一些数据</span></span><br><span class="line">n_sample = <span class="number">100</span></span><br><span class="line">n_dim = <span class="number">10</span></span><br><span class="line">batch_size = <span class="number">25</span></span><br><span class="line">X = torch.randn(n_sample, n_dim)  <span class="comment"># 100个样本，每个样本有10个特征</span></span><br><span class="line">Y = torch.randint(<span class="number">0</span>, <span class="number">2</span>, (n_sample, )).<span class="built_in">float</span>()</span><br><span class="line"></span><br><span class="line">dataset = SimpleDataset(X, Y)</span><br><span class="line">sampler = torch.utils.data.distributed.DistributedSampler(dataset)</span><br><span class="line">data_loader = DataLoader(dataset, batch_size=batch_size, sampler=sampler)</span><br><span class="line"></span><br><span class="line"><span class="comment">## 构造模型</span></span><br><span class="line">model = SimpleModel(n_dim).to(local_rank)</span><br><span class="line"><span class="comment">## DDP: Load模型要在构造DDP模型之前，且只需要在master上加载就行了。</span></span><br><span class="line">ckpt_path = <span class="literal">None</span></span><br><span class="line"><span class="keyword">if</span> dist.get_rank() == <span class="number">0</span> <span class="keyword">and</span> ckpt_path <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">    model.load_state_dict(torch.load(ckpt_path))</span><br><span class="line"></span><br><span class="line"><span class="comment">## DDP: 构造DDP model —————— 必须在 init_process_group 之后才可以调用 DDP</span></span><br><span class="line">model = DDP(model, device_ids=[local_rank], output_device=local_rank)</span><br><span class="line"></span><br><span class="line"><span class="comment">## DDP: 要在构造DDP model之后，才能用model初始化optimizer。</span></span><br><span class="line">optimizer = torch.optim.SGD(model.parameters(), lr=<span class="number">0.001</span>)</span><br><span class="line">loss_func = nn.BCELoss().to(local_rank)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 网络训练  ###</span></span><br><span class="line">model.train()</span><br><span class="line">num_epoch = <span class="number">100</span></span><br><span class="line">iterator = tqdm(<span class="built_in">range</span>(<span class="number">100</span>))</span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> iterator:</span><br><span class="line">    <span class="comment"># DDP：设置sampler的epoch，</span></span><br><span class="line">    <span class="comment"># DistributedSampler需要这个来指定shuffle方式，</span></span><br><span class="line">    <span class="comment"># 通过维持各个进程之间的相同随机数种子使不同进程能获得同样的shuffle效果。</span></span><br><span class="line">    data_loader.sampler.set_epoch(epoch)</span><br><span class="line">    <span class="comment"># 后面这部分，则与原来完全一致了。</span></span><br><span class="line">    <span class="keyword">for</span> data, label <span class="keyword">in</span> data_loader:</span><br><span class="line">        data, label = data.to(local_rank), label.to(local_rank)</span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        prediction = model(data)</span><br><span class="line">        loss = loss_func(prediction, label.unsqueeze(<span class="number">1</span>))</span><br><span class="line">        loss.backward()</span><br><span class="line">        iterator.desc = <span class="string">&quot;loss = %0.3f&quot;</span> % loss</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># DDP:</span></span><br><span class="line">    <span class="comment"># 1. save模型的时候，和DP模式一样，有一个需要注意的点：保存的是model.module而不是model。</span></span><br><span class="line">    <span class="comment">#    因为model其实是DDP model，参数是被`model=DDP(model)`包起来的。</span></span><br><span class="line">    <span class="comment"># 2. 只需要在进程0上保存一次就行了，避免多次保存重复的东西。</span></span><br><span class="line">    <span class="keyword">if</span> dist.get_rank() == <span class="number">0</span> <span class="keyword">and</span> epoch == num_epoch - <span class="number">1</span>:</span><br><span class="line">        torch.save(model.module.state_dict(), <span class="string">&quot;%d.ckpt&quot;</span> % epoch)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">from</span> tqdm <span class="keyword">import</span> tqdm</span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader, Dataset</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> torch.distributed <span class="keyword">as</span> dist</span><br><span class="line"><span class="keyword">from</span> torch.nn.parallel <span class="keyword">import</span> DistributedDataParallel <span class="keyword">as</span> DDP</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 基础模块 ### </span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleModel</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, input_dim</span>):</span><br><span class="line">        <span class="built_in">super</span>(SimpleModel, <span class="variable language_">self</span>).__init__()</span><br><span class="line">        <span class="variable language_">self</span>.fc = nn.Linear(input_dim, <span class="number">1</span>)</span><br><span class="line">        cnt = torch.tensor(<span class="number">0</span>)</span><br><span class="line">        <span class="variable language_">self</span>.register_buffer(<span class="string">'cnt'</span>, cnt)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        <span class="variable language_">self</span>.cnt += <span class="number">1</span></span><br><span class="line">        <span class="comment"># print("In forward: ", self.cnt, "Rank: ", self.fc.weight.device)</span></span><br><span class="line">        <span class="keyword">return</span> torch.sigmoid(<span class="variable language_">self</span>.fc(x))</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleDataset</span>(<span class="title class_ inherited__">Dataset</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, data, target</span>):</span><br><span class="line">        <span class="variable language_">self</span>.data = data</span><br><span class="line">        <span class="variable language_">self</span>.target = target</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__len__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(<span class="variable language_">self</span>.data)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__getitem__</span>(<span class="params">self, idx</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.data[idx], <span class="variable language_">self</span>.target[idx]</span><br><span class="line">    </span><br><span class="line"><span class="comment"># 2. 初始化我们的模型、数据、各种配置  ####</span></span><br><span class="line"><span class="comment">## DDP：从外部得到local_rank参数。从外面得到local_rank参数，在调用DDP的时候，其会自动给出这个参数</span></span><br><span class="line">parser = argparse.ArgumentParser()</span><br><span class="line">parser.add_argument(<span class="string">"--local_rank"</span>, default=-<span class="number">1</span>, <span class="built_in">type</span>=<span class="built_in">int</span>)</span><br><span class="line">FLAGS = parser.parse_args()</span><br><span class="line">local_rank = FLAGS.local_rank</span><br><span class="line"></span><br><span class="line"><span class="comment">## DDP：DDP backend初始化</span></span><br><span class="line">torch.cuda.set_device(local_rank)</span><br><span class="line">dist.init_process_group(backend=<span class="string">'nccl'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">## 假设我们有一些数据</span></span><br><span class="line">n_sample = <span class="number">100</span></span><br><span class="line">n_dim = <span class="number">10</span></span><br><span class="line">batch_size = <span class="number">25</span></span><br><span class="line">X = torch.randn(n_sample, n_dim)  <span class="comment"># 100个样本，每个样本有10个特征</span></span><br><span class="line">Y = torch.randint(<span class="number">0</span>, <span class="number">2</span>, (n_sample, )).<span class="built_in">float</span>()</span><br><span class="line"></span><br><span class="line">dataset = SimpleDataset(X, Y)</span><br><span class="line">sampler = torch.utils.data.distributed.DistributedSampler(dataset)</span><br><span class="line">data_loader = DataLoader(dataset, batch_size=batch_size, sampler=sampler)</span><br><span class="line"></span><br><span class="line"><span class="comment">## 构造模型</span></span><br><span class="line">model = SimpleModel(n_dim).to(local_rank)</span><br><span class="line"><span class="comment">## DDP: Load模型要在构造DDP模型之前，且只需要在master上加载就行了。</span></span><br><span class="line">ckpt_path = <span class="literal">None</span></span><br><span class="line"><span class="keyword">if</span> dist.get_rank() == <span class="number">0</span> <span class="keyword">and</span> ckpt_path <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">    model.load_state_dict(torch.load(ckpt_path))</span><br><span class="line"></span><br><span class="line"><span class="comment">## DDP: 构造DDP model —————— 必须在 init_process_group 之后才可以调用 DDP</span></span><br><span class="line">model = DDP(model, device_ids=[local_rank], output_device=local_rank)</span><br><span class="line"></span><br><span class="line"><span class="comment">## DDP: 要在构造DDP model之后，才能用model初始化optimizer。</span></span><br><span class="line">optimizer = torch.optim.SGD(model.parameters(), lr=<span class="number">0.001</span>)</span><br><span class="line">loss_func = nn.BCELoss().to(local_rank)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 网络训练  ###</span></span><br><span class="line">model.train()</span><br><span class="line">num_epoch = <span class="number">100</span></span><br><span class="line">iterator = tqdm(<span class="built_in">range</span>(<span class="number">100</span>))</span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> iterator:</span><br><span class="line">    <span class="comment"># DDP：设置sampler的epoch，</span></span><br><span class="line">    <span class="comment"># DistributedSampler需要这个来指定shuffle方式，</span></span><br><span class="line">    <span class="comment"># 通过维持各个进程之间的相同随机数种子使不同进程能获得同样的shuffle效果。</span></span><br><span class="line">    data_loader.sampler.set_epoch(epoch)</span><br><span class="line">    <span class="comment"># 后面这部分，则与原来完全一致了。</span></span><br><span class="line">    <span class="keyword">for</span> data, label <span class="keyword">in</span> data_loader:</span><br><span class="line">        data, label = data.to(local_rank), label.to(local_rank)</span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        prediction = model(data)</span><br><span class="line">        loss = loss_func(prediction, label.unsqueeze(<span class="number">1</span>))</span><br><span class="line">        loss.backward()</span><br><span class="line">        iterator.desc = <span class="string">"loss = %0.3f"</span> % loss</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># DDP:</span></span><br><span class="line">    <span class="comment"># 1. save模型的时候，和DP模式一样，有一个需要注意的点：保存的是model.module而不是model。</span></span><br><span class="line">    <span class="comment">#    因为model其实是DDP model，参数是被`model=DDP(model)`包起来的。</span></span><br><span class="line">    <span class="comment"># 2. 只需要在进程0上保存一次就行了，避免多次保存重复的东西。</span></span><br><span class="line">    <span class="keyword">if</span> dist.get_rank() == <span class="number">0</span> <span class="keyword">and</span> epoch == num_epoch - <span class="number">1</span>:</span><br><span class="line">        torch.save(model.module.state_dict(), <span class="string">"%d.ckpt"</span> % epoch)</span><br></pre></td></tr></table></figure>
 <p>结合上面的代码，一个简化版的DDP流程：</p>
 <ol>
 <li>读取DDP相关的配置，其中最关键的就是：<code>local_rank</code>；</li>
@@ -166,7 +278,7 @@
 <li>训练。</li>
 </ol>
 <p>DDP的通常启动方式：</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">CUDA_VISIBLE_DEVICES</span>=<span class="string">&quot;0,1&quot;</span> python -m torch.distributed.launch --nproc_per_node <span class="number">2</span> ddp.py</span><br></pre></td></tr></table></figure>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">CUDA_VISIBLE_DEVICES</span>=<span class="string">"0,1"</span> python -m torch.distributed.launch --nproc_per_node <span class="number">2</span> ddp.py</span><br></pre></td></tr></table></figure>
 <h3 id="一些概念"><a href="#一些概念" class="headerlink" title="一些概念"></a>一些概念</h3><p>以上过程中涉及到一些陌生的概念，其实走一遍DDP的过程就会很好理解：每个进程是一个独立的训练流程，不同进程之间共享同一份数据。为了避免不同进程使用重复的数据训练，以及训练后同步梯度，进程间需要同步。因此，其中一个重点就是每个进程序号，或者说使用的GPU的序号。</p>
 <ul>
 <li><code>node</code>：节点，可以是物理主机，也可以是容器；</li>
@@ -417,7 +529,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2024/12/05/DP%E5%92%8CDDP/" data-id="cm4boxx5h0004ykfybz46f5ll" data-title="DP和DDP" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2024/12/05/DP%E5%92%8CDDP/" data-id="cm5ar5vhb0000ciwi3yd85gcy" data-title="DP和DDP" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -456,15 +568,29 @@
 
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CNN/" rel="tag">CNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/basical-network/" rel="tag">basical-network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llm/" rel="tag">llm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llm-securaty/" rel="tag">llm-securaty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/object-detection/" rel="tag">object-detection</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/self-supervised/" rel="tag">self-supervised</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81/" rel="tag">多模态</a></li></ul>
+    </div>
+  </div>
+
 
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CNN/" style="font-size: 10px;">CNN</a> <a href="/tags/basical-network/" style="font-size: 10px;">basical-network</a> <a href="/tags/llm/" style="font-size: 20px;">llm</a> <a href="/tags/llm-securaty/" style="font-size: 10px;">llm-securaty</a> <a href="/tags/object-detection/" style="font-size: 15px;">object-detection</a> <a href="/tags/self-supervised/" style="font-size: 10px;">self-supervised</a> <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81/" style="font-size: 15px;">多模态</a>
+    </div>
+  </div>
+
   
     
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/12/">December 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/12/">December 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a></li></ul>
     </div>
   </div>
 
@@ -477,23 +603,23 @@
       <ul>
         
           <li>
-            <a href="/2024/12/06/MoE-Rag-Peft-RLHF-DPO/">MoE_Rag_Peft_RLHF_DPO</a>
+            <a href="/2025/02/04/torch%E4%B8%AD%E7%9A%84forward-hook/">torch中的forward hook</a>
           </li>
         
           <li>
-            <a href="/2024/12/05/Olmo%E5%8F%8Adolma%E5%AE%9E%E8%B7%B5/">Olmo及dolma实践</a>
+            <a href="/2025/01/01/ObjectDetectionRecent20Years/">ObjectDetectionRecent20Years</a>
           </li>
         
           <li>
-            <a href="/2024/12/05/DeepSpeed%E7%9B%B8%E5%85%B3/">DeepSpeed相关</a>
+            <a href="/2024/12/30/playingDINOv2/">playingDINOv2</a>
           </li>
         
           <li>
-            <a href="/2024/12/05/DP%E5%92%8CDDP/">DP和DDP</a>
+            <a href="/2024/12/30/CNN-surveys/">CNN-surveys</a>
           </li>
         
           <li>
-            <a href="/2024/12/05/%E5%8D%83%E9%97%AE%E7%9B%B8%E5%85%B3/">千问相关</a>
+            <a href="/2024/12/10/%E5%B0%8F%E6%A0%B7%E6%9C%AC%E5%92%8Cllm/">小样本和llm</a>
           </li>
         
       </ul>
@@ -509,7 +635,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       
-      &copy; 2024 John Doe<br>
+      &copy; 2025 John Doe<br>
       Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
@@ -543,5 +669,21 @@
 
 
   </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
 </body>
 </html>

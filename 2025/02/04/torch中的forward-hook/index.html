@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>torch中的forward hook | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="While reading the source code of repo:dino-vit-features, I find that they use hook function to make the pre-trained model act as they desire. However, the first time I saw the function register_forwar">
+<meta property="og:type" content="article">
+<meta property="og:title" content="torch中的forward hook">
+<meta property="og:url" content="http://example.com/2025/02/04/torch%E4%B8%AD%E7%9A%84forward-hook/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="While reading the source code of repo:dino-vit-features, I find that they use hook function to make the pre-trained model act as they desire. However, the first time I saw the function register_forwar">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-02-04T06:22:36.000Z">
+<meta property="article:modified_time" content="2025-02-04T06:56:11.914Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-torch中的forward-hook" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2025/02/04/torch%E4%B8%AD%E7%9A%84forward-hook/" class="article-date">
+  <time class="dt-published" datetime="2025-02-04T06:22:36.000Z" itemprop="datePublished">2025-02-04</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      torch中的forward hook
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>While reading the source code of <a href="(https://github.com/ShirAmir/dino-vit-features/tree/main"><code>repo:dino-vit-features</code></a>, I find that they use hook function to make the pre-trained model act as they desire. However, the first time I saw the function <code>register_forward_hook</code>, I mistook it for a designed function of <code>dino</code>. In fact, such function is the attribute of <code>nn.Module</code>, thus providing a flexible way to control the pre-trained weights. This short blog will show how to use <code>register_forward_hook</code>.</p>
+<p>The sign of <code>register_forward_hook</code> is as follows.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">register_forward_hook(hook: <span class="type">Callable</span>[[nn.Module, Input, Output], <span class="type">Optional</span>[Output]]) -&gt; torch.utils.hooks.RemovableHandle</span><br></pre></td></tr></table></figure><br><code>DeepSeek</code> gives the following explanation.</p>
+<ul>
+<li><strong>参数</strong>：<ul>
+<li><code>hook</code>：一个回调函数，接受三个参数：<ul>
+<li><code>module</code>：当前模块（<code>nn.Module</code> 的实例）。</li>
+<li><code>input</code>：模块的输入（一个元组，包含所有输入参数）。</li>
+<li><code>output</code>：模块的输出。</li>
+</ul>
+</li>
+<li>回调函数可以返回 <code>None</code>，或者返回一个新的输出（用于修改输出）。</li>
+</ul>
+</li>
+<li><strong>返回值</strong>：<ul>
+<li>返回一个 <code>RemovableHandle</code> 对象，可以调用其 <code>remove()</code> 方法来移除这个 Hook。</li>
+</ul>
+</li>
+</ul>
+<p>However, we still don’t know how to use and realize such hook function. <code>DeepSeek</code> also gives a toy example to help further understand.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义一个简单的模型</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleModel</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">super</span>(SimpleModel, <span class="variable language_">self</span>).__init__()</span><br><span class="line">        <span class="variable language_">self</span>.fc = nn.Linear(<span class="number">10</span>, <span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.fc(x)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 实例化模型</span></span><br><span class="line">model = SimpleModel()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义 Hook 回调函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">hook_fn</span>(<span class="params">module, <span class="built_in">input</span>, output</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Module: <span class="subst">&#123;module&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Input: <span class="subst">&#123;<span class="built_in">input</span>&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Output: <span class="subst">&#123;output&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="comment"># 可以在这里修改输出</span></span><br><span class="line">    <span class="keyword">return</span> output + <span class="number">1</span>  <span class="comment"># 修改输出</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 注册 Hook</span></span><br><span class="line">handle = model.fc.register_forward_hook(hook_fn)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 前向传播</span></span><br><span class="line">x = torch.randn(<span class="number">1</span>, <span class="number">10</span>)</span><br><span class="line">output = model(x)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;Final Output: <span class="subst">&#123;output&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 移除 Hook</span></span><br><span class="line">handle.remove()</span><br></pre></td></tr></table></figure><br>From above we find that the <code>output</code> is just the normal output of the <code>forward</code> of the <code>nn.Module</code>. And after <code>register_forward_hook</code>, <code>model()</code> will no more call <code>forward</code> but indeed call the hook function we defined.</p>
+<p>Now we focus on the example in <a href="(https://github.com/ShirAmir/dino-vit-features/tree/main"><code>repo:dino-vit-features</code></a>, explicitly the <code>self._get_hook()</code> function of class <code>VitExtractor</code><br>First we focus on the source code:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_get_hook</span>(<span class="params">self, facet: <span class="built_in">str</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    generate a hook method for a specific block and facet.</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> facet <span class="keyword">in</span> [<span class="string">&#x27;attn&#x27;</span>, <span class="string">&#x27;token&#x27;</span>]:</span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">_hook</span>(<span class="params">model, <span class="built_in">input</span>, output</span>):</span><br><span class="line">            <span class="variable language_">self</span>._feats.append(output)</span><br><span class="line">        <span class="keyword">return</span> _hook</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> facet == <span class="string">&#x27;query&#x27;</span>:</span><br><span class="line">        facet_idx = <span class="number">0</span></span><br><span class="line">    <span class="keyword">elif</span> facet == <span class="string">&#x27;key&#x27;</span>:</span><br><span class="line">        facet_idx = <span class="number">1</span></span><br><span class="line">    <span class="keyword">elif</span> facet == <span class="string">&#x27;value&#x27;</span>:</span><br><span class="line">        facet_idx = <span class="number">2</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">raise</span> TypeError(<span class="string">f&quot;<span class="subst">&#123;facet&#125;</span> is not a supported facet.&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">_inner_hook</span>(<span class="params">module, <span class="built_in">input</span>, output</span>):</span><br><span class="line">        <span class="built_in">input</span> = <span class="built_in">input</span>[<span class="number">0</span>]</span><br><span class="line">        B, N, C = <span class="built_in">input</span>.shape</span><br><span class="line">        qkv = module.qkv(<span class="built_in">input</span>).reshape(B, N, <span class="number">3</span>, module.num_heads, C // module.num_heads).permute(<span class="number">2</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="number">4</span>)</span><br><span class="line">        <span class="variable language_">self</span>._feats.append(qkv[facet_idx]) <span class="comment">#Bxhxtxd</span></span><br><span class="line">    <span class="keyword">return</span> _inner_hook</span><br></pre></td></tr></table></figure><br>When <code>facet</code> is in list <code>[&#39;attn&#39;, &#39;token&#39;]</code>, it will return a function that return nothing but change the attribute <code>self._feats</code>. The tensors added into <code>self._feats</code> is just the normal output of the <code>block</code> in <code>dino</code>; When <code>facet</code> is <code>query</code>, <code>key</code>or <code>value</code>, similiar function is returned. Note that the <code>output</code> parameter is not necessary to be included in the definition, thus we can flexibly use the pre-trained parameters.</p>
+<p><a href="(https://github.com/ShirAmir/dino-vit-features/tree/main"><code>repo:dino-vit-features</code></a> use a more complicated way to call the hook function, we list the functions <strong>from top to down</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">extract_descriptors</span>(<span class="params">self, batch: torch.Tensor, layer: <span class="built_in">int</span> = <span class="number">11</span>, facet: <span class="built_in">str</span> = <span class="string">&#x27;key&#x27;</span>,</span></span><br><span class="line"><span class="params">						<span class="built_in">bin</span>: <span class="built_in">bool</span> = <span class="literal">False</span>, include_cls: <span class="built_in">bool</span> = <span class="literal">False</span></span>) -&gt; torch.Tensor:</span><br><span class="line">	<span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">	extract descriptors from the model</span></span><br><span class="line"><span class="string">	:param batch: batch to extract descriptors for. Has shape BxCxHxW.</span></span><br><span class="line"><span class="string">	:param layers: layer to extract. A number between 0 to 11.</span></span><br><span class="line"><span class="string">	:param facet: facet to extract. One of the following options: [&#x27;key&#x27; | &#x27;query&#x27; | &#x27;value&#x27; | &#x27;token&#x27;]</span></span><br><span class="line"><span class="string">	:param bin: apply log binning to the descriptor. default is False.</span></span><br><span class="line"><span class="string">	:return: tensor of descriptors. Bx1xtxd&#x27; where d&#x27; is the dimension of the descriptors.</span></span><br><span class="line"><span class="string">	&quot;&quot;&quot;</span></span><br><span class="line">	<span class="keyword">assert</span> facet <span class="keyword">in</span> [<span class="string">&#x27;key&#x27;</span>, <span class="string">&#x27;query&#x27;</span>, <span class="string">&#x27;value&#x27;</span>, <span class="string">&#x27;token&#x27;</span>], <span class="string">f&quot;&quot;&quot;<span class="subst">&#123;facet&#125;</span> is not a supported facet for descriptors. </span></span><br><span class="line"><span class="string">														 choose from [&#x27;key&#x27; | &#x27;query&#x27; | &#x27;value&#x27; | &#x27;token&#x27;] &quot;&quot;&quot;</span></span><br><span class="line">	<span class="variable language_">self</span>._extract_features(batch, [layer], facet)</span><br><span class="line">	x = <span class="variable language_">self</span>._feats[<span class="number">0</span>]</span><br><span class="line">	<span class="keyword">if</span> facet == <span class="string">&#x27;token&#x27;</span>:</span><br><span class="line">		x.unsqueeze_(dim=<span class="number">1</span>) <span class="comment">#Bx1xtxd</span></span><br><span class="line">	<span class="keyword">if</span> <span class="keyword">not</span> include_cls:</span><br><span class="line">		x = x[:, :, <span class="number">1</span>:, :]  <span class="comment"># remove cls token</span></span><br><span class="line">	<span class="keyword">else</span>:</span><br><span class="line">		<span class="keyword">assert</span> <span class="keyword">not</span> <span class="built_in">bin</span>, <span class="string">&quot;bin = True and include_cls = True are not supported together, set one of them False.&quot;</span></span><br><span class="line">	<span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">bin</span>:</span><br><span class="line">		desc = x.permute(<span class="number">0</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>).flatten(start_dim=-<span class="number">2</span>, end_dim=-<span class="number">1</span>).unsqueeze(dim=<span class="number">1</span>)  <span class="comment"># Bx1xtx(dxh)</span></span><br><span class="line">	<span class="keyword">else</span>:</span><br><span class="line">		desc = <span class="variable language_">self</span>._log_bin(x)</span><br><span class="line">	<span class="keyword">return</span> desc</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_extract_features</span>(<span class="params">self, batch: torch.Tensor, layers: <span class="type">List</span>[<span class="built_in">int</span>] = <span class="number">11</span>, facet: <span class="built_in">str</span> = <span class="string">&#x27;key&#x27;</span></span>) -&gt; <span class="type">List</span>[torch.Tensor]:</span><br><span class="line">	<span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">	extract features from the model</span></span><br><span class="line"><span class="string">	:param batch: batch to extract features for. Has shape BxCxHxW.</span></span><br><span class="line"><span class="string">	:param layers: layer to extract. A number between 0 to 11.</span></span><br><span class="line"><span class="string">	:param facet: facet to extract. One of the following options: [&#x27;key&#x27; | &#x27;query&#x27; | &#x27;value&#x27; | &#x27;token&#x27; | &#x27;attn&#x27;]</span></span><br><span class="line"><span class="string">	:return : tensor of features.</span></span><br><span class="line"><span class="string">			  if facet is &#x27;key&#x27; | &#x27;query&#x27; | &#x27;value&#x27; has shape Bxhxtxd</span></span><br><span class="line"><span class="string">			  if facet is &#x27;attn&#x27; has shape Bxhxtxt</span></span><br><span class="line"><span class="string">			  if facet is &#x27;token&#x27; has shape Bxtxd</span></span><br><span class="line"><span class="string">	&quot;&quot;&quot;</span></span><br><span class="line">	B, C, H, W = batch.shape</span><br><span class="line">	<span class="variable language_">self</span>._feats = []</span><br><span class="line">	<span class="variable language_">self</span>._register_hooks(layers, facet)</span><br><span class="line">	_ = <span class="variable language_">self</span>.model(batch)</span><br><span class="line">	<span class="variable language_">self</span>._unregister_hooks()</span><br><span class="line">	<span class="variable language_">self</span>.load_size = (H, W)</span><br><span class="line">	<span class="variable language_">self</span>.num_patches = (<span class="number">1</span> + (H - <span class="variable language_">self</span>.p) // <span class="variable language_">self</span>.stride[<span class="number">0</span>], <span class="number">1</span> + (W - <span class="variable language_">self</span>.p) // <span class="variable language_">self</span>.stride[<span class="number">1</span>])</span><br><span class="line">	<span class="keyword">return</span> <span class="variable language_">self</span>._feats</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_register_hooks</span>(<span class="params">self, layers: <span class="type">List</span>[<span class="built_in">int</span>], facet: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">	<span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">	register hook to extract features.</span></span><br><span class="line"><span class="string">	:param layers: layers from which to extract features.</span></span><br><span class="line"><span class="string">	:param facet: facet to extract. One of the following options: [&#x27;key&#x27; | &#x27;query&#x27; | &#x27;value&#x27; | &#x27;token&#x27; | &#x27;attn&#x27;]</span></span><br><span class="line"><span class="string">	&quot;&quot;&quot;</span></span><br><span class="line">	<span class="keyword">for</span> block_idx, block <span class="keyword">in</span> <span class="built_in">enumerate</span>(<span class="variable language_">self</span>.model.blocks):</span><br><span class="line">		<span class="keyword">if</span> block_idx <span class="keyword">in</span> layers:</span><br><span class="line">			<span class="keyword">if</span> facet == <span class="string">&#x27;token&#x27;</span>:</span><br><span class="line">				<span class="variable language_">self</span>.hook_handlers.append(block.register_forward_hook(<span class="variable language_">self</span>._get_hook(facet)))</span><br><span class="line">			<span class="keyword">elif</span> facet == <span class="string">&#x27;attn&#x27;</span>:</span><br><span class="line">				<span class="variable language_">self</span>.hook_handlers.append(block.attn.attn_drop.register_forward_hook(<span class="variable language_">self</span>._get_hook(facet)))</span><br><span class="line">			<span class="keyword">elif</span> facet <span class="keyword">in</span> [<span class="string">&#x27;key&#x27;</span>, <span class="string">&#x27;query&#x27;</span>, <span class="string">&#x27;value&#x27;</span>]:</span><br><span class="line">				<span class="variable language_">self</span>.hook_handlers.append(block.attn.register_forward_hook(<span class="variable language_">self</span>._get_hook(facet)))</span><br><span class="line">			<span class="keyword">else</span>:</span><br><span class="line">				<span class="keyword">raise</span> TypeError(<span class="string">f&quot;<span class="subst">&#123;facet&#125;</span> is not a supported facet.&quot;</span>)</span><br></pre></td></tr></table></figure><br>A new attribute now bothers us, what is <code>self.hook_handlers</code> and how it is used?<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">self</span>.hook_handlers = []</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_unregister_hooks</span>(<span class="params">self</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">	<span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">	unregisters the hooks. should be called after feature extraction.</span></span><br><span class="line"><span class="string">	&quot;&quot;&quot;</span></span><br><span class="line">	<span class="keyword">for</span> handle <span class="keyword">in</span> <span class="variable language_">self</span>.hook_handlers:</span><br><span class="line">		handle.remove()</span><br><span class="line">	<span class="variable language_">self</span>.hook_handlers = []</span><br></pre></td></tr></table></figure></p>
+<p>We see that it is just a list to contains the aforementioned <code>RemovableHandle</code> objects to further remove them after calling the hook functions.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2025/02/04/torch%E4%B8%AD%E7%9A%84forward-hook/" data-id="cm6q4nk2m0000rqwih10y8ilu" data-title="torch中的forward hook" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2025/01/01/ObjectDetectionRecent20Years/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">ObjectDetectionRecent20Years</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CNN/" rel="tag">CNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/basical-network/" rel="tag">basical-network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llm/" rel="tag">llm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llm-securaty/" rel="tag">llm-securaty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/object-detection/" rel="tag">object-detection</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/self-supervised/" rel="tag">self-supervised</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81/" rel="tag">多模态</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CNN/" style="font-size: 10px;">CNN</a> <a href="/tags/basical-network/" style="font-size: 10px;">basical-network</a> <a href="/tags/llm/" style="font-size: 20px;">llm</a> <a href="/tags/llm-securaty/" style="font-size: 10px;">llm-securaty</a> <a href="/tags/object-detection/" style="font-size: 15px;">object-detection</a> <a href="/tags/self-supervised/" style="font-size: 10px;">self-supervised</a> <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81/" style="font-size: 15px;">多模态</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/12/">December 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/02/04/torch%E4%B8%AD%E7%9A%84forward-hook/">torch中的forward hook</a>
+          </li>
+        
+          <li>
+            <a href="/2025/01/01/ObjectDetectionRecent20Years/">ObjectDetectionRecent20Years</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/30/playingDINOv2/">playingDINOv2</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/30/CNN-surveys/">CNN-surveys</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/10/%E5%B0%8F%E6%A0%B7%E6%9C%AC%E5%92%8Cllm/">小样本和llm</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+</body>
+</html>

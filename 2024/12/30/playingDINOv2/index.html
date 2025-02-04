@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>playingDINOv2 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="In this article, I will record a temptation to use pre-trained DinoV2 to generate the Relationship Masks. First, I will attempt to utilize the pre-trained model dinov2_vits14 (“s” means small) on a se">
+<meta property="og:type" content="article">
+<meta property="og:title" content="playingDINOv2">
+<meta property="og:url" content="http://example.com/2024/12/30/playingDINOv2/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="In this article, I will record a temptation to use pre-trained DinoV2 to generate the Relationship Masks. First, I will attempt to utilize the pre-trained model dinov2_vits14 (“s” means small) on a se">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-12-30T10:08:58.000Z">
+<meta property="article:modified_time" content="2025-01-01T13:23:09.213Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="object-detection">
+<meta property="article:tag" content="self-supervised">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-playingDINOv2" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/12/30/playingDINOv2/" class="article-date">
+  <time class="dt-published" datetime="2024-12-30T10:08:58.000Z" itemprop="datePublished">2024-12-30</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      playingDINOv2
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>In this article, I will record a temptation to use pre-trained DinoV2 to generate the <strong>Relationship Masks</strong>. First, I will attempt to utilize the pre-trained model <code>dinov2_vits14</code> (“s” means small) on a semantic segmentation task <strong>WITHOUT MMSEG</strong>.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"></span><br><span class="line">dinov2_vits14 = torch.hub.load(<span class="string">'facebookresearch/dinov2'</span>, <span class="string">'dinov2_vits14'</span>)</span><br></pre></td></tr></table></figure><br>Out:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">DinoVisionTransformer(</span><br><span class="line">  (patch_embed): PatchEmbed(</span><br><span class="line">    (proj): Conv2d(3, 384, kernel_size=(14, 14), stride=(14, 14))</span><br><span class="line">    (norm): Identity()</span><br><span class="line">  )</span><br><span class="line">  (blocks): ModuleList(</span><br><span class="line">    (0-11): 12 x NestedTensorBlock(</span><br><span class="line">      (norm1): LayerNorm((384,), eps=1e-06, elementwise_affine=True)</span><br><span class="line">      (attn): MemEffAttention(</span><br><span class="line">        (qkv): Linear(in_features=384, out_features=1152, bias=True)</span><br><span class="line">        (attn_drop): Dropout(p=0.0, inplace=False)</span><br><span class="line">        (proj): Linear(in_features=384, out_features=384, bias=True)</span><br><span class="line">        (proj_drop): Dropout(p=0.0, inplace=False)</span><br><span class="line">      )</span><br><span class="line">      (ls1): LayerScale()</span><br><span class="line">      (drop_path1): Identity()</span><br><span class="line">      (norm2): LayerNorm((384,), eps=1e-06, elementwise_affine=True)</span><br><span class="line">      (mlp): Mlp(</span><br><span class="line">        (fc1): Linear(in_features=384, out_features=1536, bias=True)</span><br><span class="line">        (act): GELU(approximate='none')</span><br><span class="line">        (fc2): Linear(in_features=1536, out_features=384, bias=True)</span><br><span class="line">        (drop): Dropout(p=0.0, inplace=False)</span><br><span class="line">      )</span><br><span class="line">      (ls2): LayerScale()</span><br><span class="line">      (drop_path2): Identity()</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">  (norm): LayerNorm((384,), eps=1e-06, elementwise_affine=True)</span><br><span class="line">  (head): Identity()</span><br><span class="line">)</span><br></pre></td></tr></table></figure><br>Here, we find that the class name of the pre-trained DinoV2 is <code>DinoVisionTransformer</code>, where we can find the definition in file <code>dinov2/models/vision_transformer.py</code> of repo <code>facebook/dinov2</code>.</p>
+<p>Now, we figure out how the official demo <code>notebooks/semantic_segmentation.ipynb</code> initializes a segmentation model of which the <code>backbone</code> is the aforementioned <code>dinov2_vits14</code>. Here, two puzzles bother us:</p>
+<ul>
+<li>Where is the definition of the segmentation model?</li>
+<li>How does it initialize the “segmentation head”?</li>
+</ul>
+<p>For these two questions, I find that the procedure of  initialization is:</p>
+<ul>
+<li><p>first, fetch the official configure file <code>cfg</code> from urls.</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">HEAD_SCALE_COUNT = <span class="number">3</span> <span class="comment"># more scales: slower but better results, in (1,2,3,4,5)</span></span><br><span class="line">HEAD_DATASET = <span class="string">"voc2012"</span> <span class="comment"># in ("ade20k", "voc2012")</span></span><br><span class="line">HEAD_TYPE = <span class="string">"ms"</span> <span class="comment"># in ("ms, "linear")</span></span><br><span class="line"></span><br><span class="line">DINOV2_BASE_URL = <span class="string">"https://dl.fbaipublicfiles.com/dinov2"</span></span><br><span class="line">head_config_url = <span class="string">f"<span class="subst">{DINOV2_BASE_URL}</span>/<span class="subst">{backbone_name}</span>/<span class="subst">{backbone_name}</span>_<span class="subst">{HEAD_DATASET}</span>_<span class="subst">{HEAD_TYPE}</span>_config.py"</span></span><br><span class="line"></span><br><span class="line">cfg_str = load_config_from_url(head_config_url)</span><br></pre></td></tr></table></figure>
+<p>  Then, I print the  <code>cfg_str</code> and get:</p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br></pre></td><td class="code"><pre><span class="line">dataset_type = 'PascalVOCDataset'</span><br><span class="line">data_root = '/checkpoint/dino/datasets/VOC2012'</span><br><span class="line">img_norm_cfg = dict(</span><br><span class="line">    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)</span><br><span class="line">crop_size = (640, 640)</span><br><span class="line">train_pipeline = [</span><br><span class="line">    dict(type='LoadImageFromFile'),</span><br><span class="line">    dict(type='LoadAnnotations'),</span><br><span class="line">    dict(type='Resize', img_scale=(99999999, 640), ratio_range=(1.0, 3.0)),</span><br><span class="line">    dict(type='RandomCrop', crop_size=(640, 640), cat_max_ratio=0.75),</span><br><span class="line">    dict(type='RandomFlip', prob=0.5),</span><br><span class="line">    dict(type='PhotoMetricDistortion'),</span><br><span class="line">    dict(</span><br><span class="line">        type='Normalize',</span><br><span class="line">        mean=[123.675, 116.28, 103.53],</span><br><span class="line">        std=[58.395, 57.12, 57.375],</span><br><span class="line">        to_rgb=True),</span><br><span class="line">    dict(type='Pad', size=(640, 640), pad_val=0, seg_pad_val=255),</span><br><span class="line">    dict(type='DefaultFormatBundle'),</span><br><span class="line">    dict(type='Collect', keys=['img', 'gt_semantic_seg'])</span><br><span class="line">]</span><br><span class="line">test_pipeline = [</span><br><span class="line">    dict(type='LoadImageFromFile'),</span><br><span class="line">    dict(</span><br><span class="line">        type='MultiScaleFlipAug',</span><br><span class="line">        img_scale=(99999999, 640),</span><br><span class="line">        img_ratios=[1.0, 1.32, 1.73, 2.28, 3.0],</span><br><span class="line">        flip=True,</span><br><span class="line">        transforms=[</span><br><span class="line">            dict(type='Resize', keep_ratio=True),</span><br><span class="line">            dict(type='RandomFlip'),</span><br><span class="line">            dict(</span><br><span class="line">                type='Normalize',</span><br><span class="line">                mean=[123.675, 116.28, 103.53],</span><br><span class="line">                std=[58.395, 57.12, 57.375],</span><br><span class="line">                to_rgb=True),</span><br><span class="line">            dict(type='ImageToTensor', keys=['img']),</span><br><span class="line">            dict(type='Collect', keys=['img'])</span><br><span class="line">        ])</span><br><span class="line">]</span><br><span class="line">data = dict(</span><br><span class="line">    samples_per_gpu=2,</span><br><span class="line">    workers_per_gpu=6,</span><br><span class="line">    train=dict(</span><br><span class="line">        type='PascalVOCDataset',</span><br><span class="line">        data_root='/checkpoint/dino/datasets/VOC2012',</span><br><span class="line">        img_dir='JPEGImages',</span><br><span class="line">        ann_dir=['SegmentationClass', 'SegmentationClassAug'],</span><br><span class="line">        split=[</span><br><span class="line">            'ImageSets/Segmentation/train.txt',</span><br><span class="line">            'ImageSets/Segmentation/aug.txt'</span><br><span class="line">        ],</span><br><span class="line">        pipeline=[</span><br><span class="line">            dict(type='LoadImageFromFile'),</span><br><span class="line">            dict(type='LoadAnnotations'),</span><br><span class="line">            dict(</span><br><span class="line">                type='Resize',</span><br><span class="line">                img_scale=(99999999, 640),</span><br><span class="line">                ratio_range=(1.0, 3.0)),</span><br><span class="line">            dict(type='RandomCrop', crop_size=(640, 640), cat_max_ratio=0.75),</span><br><span class="line">            dict(type='RandomFlip', prob=0.5),</span><br><span class="line">            dict(type='PhotoMetricDistortion'),</span><br><span class="line">            dict(</span><br><span class="line">                type='Normalize',</span><br><span class="line">                mean=[123.675, 116.28, 103.53],</span><br><span class="line">                std=[58.395, 57.12, 57.375],</span><br><span class="line">                to_rgb=True),</span><br><span class="line">            dict(type='Pad', size=(640, 640), pad_val=0, seg_pad_val=255),</span><br><span class="line">            dict(type='DefaultFormatBundle'),</span><br><span class="line">            dict(type='Collect', keys=['img', 'gt_semantic_seg'])</span><br><span class="line">        ]),</span><br><span class="line">    val=dict(</span><br><span class="line">        type='PascalVOCDataset',</span><br><span class="line">        data_root='/checkpoint/dino/datasets/VOC2012',</span><br><span class="line">        img_dir='JPEGImages',</span><br><span class="line">        ann_dir='SegmentationClass',</span><br><span class="line">        split='ImageSets/Segmentation/val.txt',</span><br><span class="line">        pipeline=[</span><br><span class="line">            dict(type='LoadImageFromFile'),</span><br><span class="line">            dict(</span><br><span class="line">                type='MultiScaleFlipAug',</span><br><span class="line">                img_scale=(99999999, 640),</span><br><span class="line">                img_ratios=[1.0, 1.32, 1.73, 2.28, 3.0],</span><br><span class="line">                flip=True,</span><br><span class="line">                transforms=[</span><br><span class="line">                    dict(type='Resize', keep_ratio=True),</span><br><span class="line">                    dict(type='RandomFlip'),</span><br><span class="line">                    dict(</span><br><span class="line">                        type='Normalize',</span><br><span class="line">                        mean=[123.675, 116.28, 103.53],</span><br><span class="line">                        std=[58.395, 57.12, 57.375],</span><br><span class="line">                        to_rgb=True),</span><br><span class="line">                    dict(type='ImageToTensor', keys=['img']),</span><br><span class="line">                    dict(type='Collect', keys=['img'])</span><br><span class="line">                ])</span><br><span class="line">        ]),</span><br><span class="line">    test=dict(</span><br><span class="line">        type='PascalVOCDataset',</span><br><span class="line">        data_root='/checkpoint/dino/datasets/VOC2012',</span><br><span class="line">        img_dir='JPEGImages',</span><br><span class="line">        ann_dir='SegmentationClass',</span><br><span class="line">        split='ImageSets/Segmentation/val.txt',</span><br><span class="line">        pipeline=[</span><br><span class="line">            dict(type='LoadImageFromFile'),</span><br><span class="line">            dict(</span><br><span class="line">                type='MultiScaleFlipAug',</span><br><span class="line">                img_scale=(99999999, 640),</span><br><span class="line">                img_ratios=[1.0, 1.32, 1.73, 2.28, 3.0],</span><br><span class="line">                flip=True,</span><br><span class="line">                transforms=[</span><br><span class="line">                    dict(type='Resize', keep_ratio=True),</span><br><span class="line">                    dict(type='RandomFlip'),</span><br><span class="line">                    dict(</span><br><span class="line">                        type='Normalize',</span><br><span class="line">                        mean=[123.675, 116.28, 103.53],</span><br><span class="line">                        std=[58.395, 57.12, 57.375],</span><br><span class="line">                        to_rgb=True),</span><br><span class="line">                    dict(type='ImageToTensor', keys=['img']),</span><br><span class="line">                    dict(type='Collect', keys=['img'])</span><br><span class="line">                ])</span><br><span class="line">        ]))</span><br><span class="line">log_config = dict(</span><br><span class="line">    interval=50, hooks=[dict(type='TextLoggerHook', by_epoch=False)])</span><br><span class="line">dist_params = dict(backend='nccl')</span><br><span class="line">log_level = 'INFO'</span><br><span class="line">load_from = None</span><br><span class="line">resume_from = None</span><br><span class="line">workflow = [('train', 1)]</span><br><span class="line">cudnn_benchmark = True</span><br><span class="line">optimizer = dict(</span><br><span class="line">    type='AdamW', lr=0.001, weight_decay=0.0001, betas=(0.9, 0.999))</span><br><span class="line">optimizer_config = dict(</span><br><span class="line">    type='DistOptimizerHook',</span><br><span class="line">    update_interval=1,</span><br><span class="line">    grad_clip=None,</span><br><span class="line">    coalesce=True,</span><br><span class="line">    bucket_size_mb=-1,</span><br><span class="line">    use_fp16=False)</span><br><span class="line">lr_config = dict(</span><br><span class="line">    policy='poly',</span><br><span class="line">    warmup='linear',</span><br><span class="line">    warmup_iters=1500,</span><br><span class="line">    warmup_ratio=1e-06,</span><br><span class="line">    power=1.0,</span><br><span class="line">    min_lr=0.0,</span><br><span class="line">    by_epoch=False)</span><br><span class="line">runner = dict(type='IterBasedRunner', max_iters=40000)</span><br><span class="line">checkpoint_config = dict(by_epoch=False, interval=10000)</span><br><span class="line">evaluation = dict(interval=40000, metric='mIoU', pre_eval=True)</span><br><span class="line">fp16 = None</span><br><span class="line">find_unused_parameters = True</span><br><span class="line">norm_cfg = dict(type='SyncBN', requires_grad=True)</span><br><span class="line">model = dict(</span><br><span class="line">    type='EncoderDecoder',</span><br><span class="line">    pretrained=None,</span><br><span class="line">    backbone=dict(type='DinoVisionTransformer', out_indices=[8, 9, 10, 11]),</span><br><span class="line">    decode_head=dict(</span><br><span class="line">        type='BNHead',</span><br><span class="line">        in_channels=[384, 384, 384, 384],</span><br><span class="line">        in_index=[0, 1, 2, 3],</span><br><span class="line">        input_transform='resize_concat',</span><br><span class="line">        channels=1536,</span><br><span class="line">        dropout_ratio=0,</span><br><span class="line">        num_classes=21,</span><br><span class="line">        norm_cfg=dict(type='SyncBN', requires_grad=True),</span><br><span class="line">        align_corners=False,</span><br><span class="line">        loss_decode=dict(</span><br><span class="line">            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),</span><br><span class="line">    test_cfg=dict(mode='slide', crop_size=(640, 640), stride=(320, 320)))</span><br><span class="line">auto_resume = True</span><br><span class="line">gpu_ids = range(0, 8)</span><br><span class="line">work_dir = '/checkpoint/dino/evaluations/segmentation/dinov2_vits14_voc2012_ms'</span><br></pre></td></tr></table></figure>
+<p>  TLDR: The class of segmentation model is <code>EncoderDecoder</code> lying in <code>mmseg/models/segmentors/encoder_decoder.py</code> of Repo <code>open-mmlab/mmsegmentation</code>.<br>  Now, check the details.</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@MODELS.register_module()</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">EncoderDecoder</span>(<span class="title class_ inherited__">BaseSegmentor</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self,</span></span><br><span class="line"><span class="params">                 backbone: ConfigType,</span></span><br><span class="line"><span class="params">                 decode_head: ConfigType,</span></span><br><span class="line"><span class="params">                 neck: OptConfigType = <span class="literal">None</span>,</span></span><br><span class="line"><span class="params">                 auxiliary_head: OptConfigType = <span class="literal">None</span>,</span></span><br><span class="line"><span class="params">                 train_cfg: OptConfigType = <span class="literal">None</span>,</span></span><br><span class="line"><span class="params">                 test_cfg: OptConfigType = <span class="literal">None</span>,</span></span><br><span class="line"><span class="params">                 data_preprocessor: OptConfigType = <span class="literal">None</span>,</span></span><br><span class="line"><span class="params">                 pretrained: <span class="type">Optional</span>[<span class="built_in">str</span>] = <span class="literal">None</span>,</span></span><br><span class="line"><span class="params">                 init_cfg: OptMultiConfig = <span class="literal">None</span></span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__(</span><br><span class="line">            data_preprocessor=data_preprocessor, init_cfg=init_cfg)</span><br><span class="line">        <span class="keyword">if</span> pretrained <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">assert</span> backbone.get(<span class="string">'pretrained'</span>) <span class="keyword">is</span> <span class="literal">None</span>, \</span><br><span class="line">                <span class="string">'both backbone and segmentor set pretrained weight'</span></span><br><span class="line">            backbone.pretrained = pretrained</span><br><span class="line">        <span class="variable language_">self</span>.backbone = MODELS.build(backbone)</span><br><span class="line">        <span class="keyword">if</span> neck <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="variable language_">self</span>.neck = MODELS.build(neck)</span><br><span class="line">        <span class="variable language_">self</span>._init_decode_head(decode_head)</span><br><span class="line">        <span class="variable language_">self</span>._init_auxiliary_head(auxiliary_head)</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">self</span>.train_cfg = train_cfg</span><br><span class="line">        <span class="variable language_">self</span>.test_cfg = test_cfg</span><br><span class="line"></span><br><span class="line">        <span class="keyword">assert</span> <span class="variable language_">self</span>.with_decode_head</span><br></pre></td></tr></table></figure>
+<p>  Now leaves the <code>decode_head</code> which is initialized in <code>EncoderDecoder</code> by function <code>_init_decode_head</code>.</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_init_decode_head</span>(<span class="params">self, decode_head: ConfigType</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">   <span class="string">"""Initialize ``decode_head``"""</span></span><br><span class="line">   <span class="variable language_">self</span>.decode_head = MODELS.build(decode_head)</span><br><span class="line">   <span class="variable language_">self</span>.align_corners = <span class="variable language_">self</span>.decode_head.align_corners</span><br><span class="line">   <span class="variable language_">self</span>.num_classes = <span class="variable language_">self</span>.decode_head.num_classes</span><br><span class="line">   <span class="variable language_">self</span>.out_channels = <span class="variable language_">self</span>.decode_head.out_channels</span><br></pre></td></tr></table></figure>
+<p>  The initialization of <code>decode_head</code> depends on Class <code>Registry</code> in dependency <code>mmengine</code></p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MODELS = Registry(<span class="string">'model'</span>, parent=MMENGINE_MODELS, locations=[<span class="string">'mmseg.models'</span>])</span><br></pre></td></tr></table></figure>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Registry</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self,</span></span><br><span class="line"><span class="params">               name: <span class="built_in">str</span>,</span></span><br><span class="line"><span class="params">               build_func: <span class="type">Optional</span>[<span class="type">Callable</span>] = <span class="literal">None</span>,</span></span><br><span class="line"><span class="params">               parent: <span class="type">Optional</span>[<span class="string">'Registry'</span>] = <span class="literal">None</span>,</span></span><br><span class="line"><span class="params">               scope: <span class="type">Optional</span>[<span class="built_in">str</span>] = <span class="literal">None</span>,</span></span><br><span class="line"><span class="params">               locations: <span class="type">List</span> = []</span>):</span><br><span class="line">	    <span class="keyword">from</span> .build_functions <span class="keyword">import</span> build_from_cfg</span><br><span class="line">        <span class="variable language_">self</span>._name = name</span><br><span class="line">        <span class="variable language_">self</span>._module_dict: <span class="type">Dict</span>[<span class="built_in">str</span>, <span class="type">Type</span>] = <span class="built_in">dict</span>()</span><br><span class="line">        <span class="variable language_">self</span>._children: <span class="type">Dict</span>[<span class="built_in">str</span>, <span class="string">'Registry'</span>] = <span class="built_in">dict</span>()</span><br><span class="line">        <span class="variable language_">self</span>._locations = locations</span><br><span class="line">        <span class="variable language_">self</span>._imported = <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> scope <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">assert</span> <span class="built_in">isinstance</span>(scope, <span class="built_in">str</span>)</span><br><span class="line">            <span class="variable language_">self</span>._scope = scope</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="variable language_">self</span>._scope = <span class="variable language_">self</span>.infer_scope()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># See https://mypy.readthedocs.io/en/stable/common_issues.html#</span></span><br><span class="line">        <span class="comment"># variables-vs-type-aliases for the use</span></span><br><span class="line">        <span class="variable language_">self</span>.parent: <span class="type">Optional</span>[<span class="string">'Registry'</span>]</span><br><span class="line">        <span class="keyword">if</span> parent <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">assert</span> <span class="built_in">isinstance</span>(parent, Registry)</span><br><span class="line">            parent._add_child(<span class="variable language_">self</span>)</span><br><span class="line">            <span class="variable language_">self</span>.parent = parent</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="variable language_">self</span>.parent = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># self.build_func will be set with the following priority:</span></span><br><span class="line">        <span class="comment"># 1. build_func</span></span><br><span class="line">        <span class="comment"># 2. parent.build_func</span></span><br><span class="line">        <span class="comment"># 3. build_from_cfg</span></span><br><span class="line">        <span class="variable language_">self</span>.build_func: <span class="type">Callable</span></span><br><span class="line">        <span class="keyword">if</span> build_func <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">if</span> <span class="variable language_">self</span>.parent <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">                <span class="variable language_">self</span>.build_func = <span class="variable language_">self</span>.parent.build_func</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="variable language_">self</span>.build_func = build_from_cfg</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="variable language_">self</span>.build_func = build_func</span><br><span class="line">...</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">build</span>(<span class="params">self, cfg: <span class="built_in">dict</span>, *args, **kwargs</span>) -&gt; <span class="type">Any</span>:</span><br><span class="line">      <span class="string">"""Build an instance.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">      Build an instance by calling :attr:`build_func`.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">      Args:</span></span><br><span class="line"><span class="string">          cfg (dict): Config dict needs to be built.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">      Returns:</span></span><br><span class="line"><span class="string">          Any: The constructed object.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">      Examples:</span></span><br><span class="line"><span class="string">          &gt;&gt;&gt; from mmengine import Registry</span></span><br><span class="line"><span class="string">          &gt;&gt;&gt; MODELS = Registry('models')</span></span><br><span class="line"><span class="string">          &gt;&gt;&gt; @MODELS.register_module()</span></span><br><span class="line"><span class="string">          &gt;&gt;&gt; class ResNet:</span></span><br><span class="line"><span class="string">          &gt;&gt;&gt;     def __init__(self, depth, stages=4):</span></span><br><span class="line"><span class="string">          &gt;&gt;&gt;         self.depth = depth</span></span><br><span class="line"><span class="string">          &gt;&gt;&gt;         self.stages = stages</span></span><br><span class="line"><span class="string">          &gt;&gt;&gt; cfg = dict(type='ResNet', depth=50)</span></span><br><span class="line"><span class="string">          &gt;&gt;&gt; model = MODELS.build(cfg)</span></span><br><span class="line"><span class="string">      """</span></span><br><span class="line">      <span class="keyword">return</span> <span class="variable language_">self</span>.build_func(cfg, *args, **kwargs, registry=<span class="variable language_">self</span>)</span><br></pre></td></tr></table></figure>
+<p>  Therefore, We find that the <code>build</code> function of <code>MODELS</code> is inherited from <code>MMENGINE_MODELS</code>, of which the definition is:</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> mmengine.registry <span class="keyword">import</span> MODELS <span class="keyword">as</span> MMENGINE_MODELS</span><br></pre></td></tr></table></figure>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># mangage all kinds of modules inheriting `nn.Module`</span></span><br><span class="line">MODELS = Registry(<span class="string">'model'</span>, build_model_from_cfg)</span><br></pre></td></tr></table></figure>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">build_model_from_cfg</span>(<span class="params"></span></span><br><span class="line"><span class="params">    cfg: <span class="type">Union</span>[<span class="built_in">dict</span>, ConfigDict, Config],</span></span><br><span class="line"><span class="params">    registry: Registry,</span></span><br><span class="line"><span class="params">    default_args: <span class="type">Optional</span>[<span class="type">Union</span>[<span class="built_in">dict</span>, <span class="string">'ConfigDict'</span>, <span class="string">'Config'</span>]] = <span class="literal">None</span></span></span><br><span class="line"><span class="params"></span>) -&gt; <span class="string">'nn.Module'</span>:</span><br><span class="line">    <span class="string">"""Build a PyTorch model from config dict(s). Different from</span></span><br><span class="line"><span class="string">    ``build_from_cfg``, if cfg is a list, a ``nn.Sequential`` will be built.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Args:</span></span><br><span class="line"><span class="string">        cfg (dict, list[dict]): The config of modules, which is either a config</span></span><br><span class="line"><span class="string">            dict or a list of config dicts. If cfg is a list, the built</span></span><br><span class="line"><span class="string">            modules will be wrapped with ``nn.Sequential``.</span></span><br><span class="line"><span class="string">        registry (:obj:`Registry`): A registry the module belongs to.</span></span><br><span class="line"><span class="string">        default_args (dict, optional): Default arguments to build the module.</span></span><br><span class="line"><span class="string">            Defaults to None.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Returns:</span></span><br><span class="line"><span class="string">        nn.Module: A built nn.Module.</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="keyword">from</span> ..model <span class="keyword">import</span> Sequential</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(cfg, <span class="built_in">list</span>):</span><br><span class="line">        modules = [</span><br><span class="line">            build_from_cfg(_cfg, registry, default_args) <span class="keyword">for</span> _cfg <span class="keyword">in</span> cfg</span><br><span class="line">        ]</span><br><span class="line">        <span class="keyword">return</span> Sequential(*modules)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> build_from_cfg(cfg, registry, default_args)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">build_from_cfg</span>(<span class="params"></span></span><br><span class="line"><span class="params">       cfg: <span class="type">Union</span>[<span class="built_in">dict</span>, ConfigDict, Config],</span></span><br><span class="line"><span class="params">       registry: Registry,</span></span><br><span class="line"><span class="params">       default_args: <span class="type">Optional</span>[<span class="type">Union</span>[<span class="built_in">dict</span>, ConfigDict, Config]] = <span class="literal">None</span></span>) -&gt; <span class="type">Any</span>:</span><br><span class="line">    <span class="string">"""Build a module from config dict when it is a class configuration, or</span></span><br><span class="line"><span class="string">    call a function from config dict when it is a function configuration.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    If the global variable default scope (:obj:`DefaultScope`) exists,</span></span><br><span class="line"><span class="string">    :meth:`build` will firstly get the responding registry and then call</span></span><br><span class="line"><span class="string">    its own :meth:`build`.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    At least one of the ``cfg`` and ``default_args`` contains the key "type",</span></span><br><span class="line"><span class="string">    which should be either str or class. If they all contain it, the key</span></span><br><span class="line"><span class="string">    in ``cfg`` will be used because ``cfg`` has a high priority than</span></span><br><span class="line"><span class="string">    ``default_args`` that means if a key exists in both of them, the value of</span></span><br><span class="line"><span class="string">    the key will be ``cfg[key]``. They will be merged first and the key "type"</span></span><br><span class="line"><span class="string">    will be popped up and the remaining keys will be used as initialization</span></span><br><span class="line"><span class="string">    arguments.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Examples:</span></span><br><span class="line"><span class="string">      &gt;&gt;&gt; 		from mmengine import Registry, build_from_cfg</span></span><br><span class="line"><span class="string">      &gt;&gt;&gt; 		MODELS = Registry('models')</span></span><br><span class="line"><span class="string">      &gt;&gt;&gt; 		@MODELS.register_module()</span></span><br><span class="line"><span class="string">      &gt;&gt;&gt; 		class ResNet:</span></span><br><span class="line"><span class="string">      &gt;&gt;&gt; 		    def __init__(self, depth, stages=4):</span></span><br><span class="line"><span class="string">      &gt;&gt;&gt; 		        self.depth = depth</span></span><br><span class="line"><span class="string">      &gt;&gt;&gt; 		        self.stages = stages</span></span><br><span class="line"><span class="string">      &gt;&gt;&gt; 		cfg = dict(type='ResNet', depth=50)</span></span><br><span class="line"><span class="string">      &gt;&gt;&gt; 		model = build_from_cfg(cfg, MODELS)</span></span><br><span class="line"><span class="string">      &gt;&gt;&gt; 		# Returns an instantiated object</span></span><br><span class="line"><span class="string">      &gt;&gt;&gt; 		@MODELS.register_module()</span></span><br><span class="line"><span class="string">      &gt;&gt;&gt; 		def resnet50():</span></span><br><span class="line"><span class="string">      &gt;&gt;&gt; 		    pass</span></span><br><span class="line"><span class="string">      &gt;&gt;&gt; 		resnet = build_from_cfg(dict(type='resnet50'), MODELS)</span></span><br><span class="line"><span class="string">      &gt;&gt;&gt; 		# Return a result of the calling function</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Args:</span></span><br><span class="line"><span class="string">        cfg (dict or ConfigDict or Config): Config dict. It should at least</span></span><br><span class="line"><span class="string">            contain the key "type".</span></span><br><span class="line"><span class="string">        registry (:obj:`Registry`): The registry to search the type from.</span></span><br><span class="line"><span class="string">        default_args (dict or ConfigDict or Config, optional): Default</span></span><br><span class="line"><span class="string">            initialization arguments. Defaults to None.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Returns:</span></span><br><span class="line"><span class="string">        object: The constructed object.</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="comment"># Avoid circular import</span></span><br><span class="line">    <span class="keyword">from</span> ..logging <span class="keyword">import</span> print_log</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">isinstance</span>(cfg, (<span class="built_in">dict</span>, ConfigDict, Config)):</span><br><span class="line">        <span class="keyword">raise</span> TypeError(</span><br><span class="line">            <span class="string">f'cfg should be a dict, ConfigDict or Config, but got <span class="subst">{<span class="built_in">type</span>(cfg)}</span>'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="string">'type'</span> <span class="keyword">not</span> <span class="keyword">in</span> cfg:</span><br><span class="line">        <span class="keyword">if</span> default_args <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">or</span> <span class="string">'type'</span> <span class="keyword">not</span> <span class="keyword">in</span> default_args:</span><br><span class="line">            <span class="keyword">raise</span> KeyError(</span><br><span class="line">                <span class="string">'`cfg` or `default_args` must contain the key "type", '</span></span><br><span class="line">                <span class="string">f'but got <span class="subst">{cfg}</span>\n<span class="subst">{default_args}</span>'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">isinstance</span>(registry, Registry):</span><br><span class="line">        <span class="keyword">raise</span> TypeError(<span class="string">'registry must be a mmengine.Registry object, '</span></span><br><span class="line">                        <span class="string">f'but got <span class="subst">{<span class="built_in">type</span>(registry)}</span>'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> (<span class="built_in">isinstance</span>(default_args,</span><br><span class="line">                       (<span class="built_in">dict</span>, ConfigDict, Config)) <span class="keyword">or</span> default_args <span class="keyword">is</span> <span class="literal">None</span>):</span><br><span class="line">        <span class="keyword">raise</span> TypeError(</span><br><span class="line">            <span class="string">'default_args should be a dict, ConfigDict, Config or None, '</span></span><br><span class="line">            <span class="string">f'but got <span class="subst">{<span class="built_in">type</span>(default_args)}</span>'</span>)</span><br><span class="line"></span><br><span class="line">    args = cfg.copy()</span><br><span class="line">    <span class="keyword">if</span> default_args <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">for</span> name, value <span class="keyword">in</span> default_args.items():</span><br><span class="line">            args.setdefault(name, value)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Instance should be built under target scope, if `_scope_` is defined</span></span><br><span class="line">    <span class="comment"># in cfg, current default scope should switch to specified scope</span></span><br><span class="line">    <span class="comment"># temporarily.</span></span><br><span class="line">    scope = args.pop(<span class="string">'_scope_'</span>, <span class="literal">None</span>)</span><br><span class="line">    <span class="keyword">with</span> registry.switch_scope_and_registry(scope) <span class="keyword">as</span> registry:</span><br><span class="line">        obj_type = args.pop(<span class="string">'type'</span>)</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(obj_type, <span class="built_in">str</span>):</span><br><span class="line">            obj_cls = registry.get(obj_type)</span><br><span class="line">            <span class="keyword">if</span> obj_cls <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">                <span class="keyword">raise</span> KeyError(</span><br><span class="line">                    <span class="string">f'<span class="subst">{obj_type}</span> is not in the <span class="subst">{registry.scope}</span>::<span class="subst">{registry.name}</span> registry. '</span>  <span class="comment"># noqa: E501</span></span><br><span class="line">                    <span class="string">f'Please check whether the value of `<span class="subst">{obj_type}</span>` is '</span></span><br><span class="line">                    <span class="string">'correct or it was registered as expected. More details '</span></span><br><span class="line">                    <span class="string">'can be found at '</span></span><br><span class="line">                    <span class="string">'https://mmengine.readthedocs.io/en/latest/advanced_tutorials/config.html#import-the-custom-module'</span>  <span class="comment"># noqa: E501</span></span><br><span class="line">                )</span><br><span class="line">        <span class="comment"># this will include classes, functions, partial functions and more</span></span><br><span class="line">        <span class="keyword">elif</span> <span class="built_in">callable</span>(obj_type):</span><br><span class="line">            obj_cls = obj_type</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">raise</span> TypeError(</span><br><span class="line">                <span class="string">f'type must be a str or valid type, but got <span class="subst">{<span class="built_in">type</span>(obj_type)}</span>'</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># If `obj_cls` inherits from `ManagerMixin`, it should be</span></span><br><span class="line">        <span class="comment"># instantiated by `ManagerMixin.get_instance` to ensure that it</span></span><br><span class="line">        <span class="comment"># can be accessed globally.</span></span><br><span class="line">        <span class="keyword">if</span> inspect.isclass(obj_cls) <span class="keyword">and</span> \</span><br><span class="line">                <span class="built_in">issubclass</span>(obj_cls, ManagerMixin):  <span class="comment"># type: ignore</span></span><br><span class="line">            obj = obj_cls.get_instance(**args)  <span class="comment"># type: ignore</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            obj = obj_cls(**args)  <span class="comment"># type: ignore</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (inspect.isclass(obj_cls) <span class="keyword">or</span> inspect.isfunction(obj_cls)</span><br><span class="line">                <span class="keyword">or</span> inspect.ismethod(obj_cls)):</span><br><span class="line">            print_log(</span><br><span class="line">                <span class="string">f'An `<span class="subst">{obj_cls.__name__}</span>` instance is built from '</span>  <span class="comment"># type: ignore # noqa: E501</span></span><br><span class="line">                <span class="string">'registry, and its implementation can be found in '</span></span><br><span class="line">                <span class="string">f'<span class="subst">{obj_cls.__module__}</span>'</span>,  <span class="comment"># type: ignore</span></span><br><span class="line">                logger=<span class="string">'current'</span>,</span><br><span class="line">                level=logging.DEBUG)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            print_log(</span><br><span class="line">                <span class="string">'An instance is built from registry, and its constructor '</span></span><br><span class="line">                <span class="string">f'is <span class="subst">{obj_cls}</span>'</span>,</span><br><span class="line">                logger=<span class="string">'current'</span>,</span><br><span class="line">                level=logging.DEBUG)</span><br><span class="line">        <span class="keyword">return</span> obj</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>  <strong>Now we conclude that</strong> the definitions of all decode_heads including <code>BNHead</code> are in <code>mmseg/models/decode_heads</code></p>
+</li>
+<li>The answer to the second question is “Yes”, the codes of loading are as follows.<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">head_checkpoint_url = <span class="string">f"<span class="subst">{DINOV2_BASE_URL}</span>/<span class="subst">{backbone_name}</span>/<span class="subst">{backbone_name}</span>_<span class="subst">{HEAD_DATASET}</span>_<span class="subst">{HEAD_TYPE}</span>_head.pth"</span></span><br><span class="line">model = create_segmenter(cfg, backbone_model=backbone_model)</span><br><span class="line">load_checkpoint(model, head_checkpoint_url, map_location=<span class="string">"cpu"</span>)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/12/30/playingDINOv2/" data-id="cm5i5ohqg0003iewi3bnf6zxy" data-title="playingDINOv2" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/object-detection/" rel="tag">object-detection</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/self-supervised/" rel="tag">self-supervised</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2025/01/01/ObjectDetectionRecent20Years/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          ObjectDetectionRecent20Years
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2024/12/30/CNN-surveys/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">CNN-surveys</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CNN/" rel="tag">CNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/basical-network/" rel="tag">basical-network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llm/" rel="tag">llm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llm-securaty/" rel="tag">llm-securaty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/object-detection/" rel="tag">object-detection</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/self-supervised/" rel="tag">self-supervised</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81/" rel="tag">多模态</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CNN/" style="font-size: 10px;">CNN</a> <a href="/tags/basical-network/" style="font-size: 10px;">basical-network</a> <a href="/tags/llm/" style="font-size: 20px;">llm</a> <a href="/tags/llm-securaty/" style="font-size: 10px;">llm-securaty</a> <a href="/tags/object-detection/" style="font-size: 15px;">object-detection</a> <a href="/tags/self-supervised/" style="font-size: 10px;">self-supervised</a> <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81/" style="font-size: 15px;">多模态</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/12/">December 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/02/04/torch%E4%B8%AD%E7%9A%84forward-hook/">torch中的forward hook</a>
+          </li>
+        
+          <li>
+            <a href="/2025/01/01/ObjectDetectionRecent20Years/">ObjectDetectionRecent20Years</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/30/playingDINOv2/">playingDINOv2</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/30/CNN-surveys/">CNN-surveys</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/10/%E5%B0%8F%E6%A0%B7%E6%9C%AC%E5%92%8Cllm/">小样本和llm</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+</body>
+</html>

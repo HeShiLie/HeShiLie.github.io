@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>MAR | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="前注diffusion部分用的ddim, 所以等我整理完个扩散模型的专题后再详细补完吧:  参照 https:&#x2F;&#x2F;github.com&#x2F;hojonathanho&#x2F;diffusion  Autoregressive Image Generation without Vector Quantization(凯明组出品)今天曲师姐组会分享了这篇文章, 趁热打铁, 过一遍顺便再把code看一下  arxi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MAR">
+<meta property="og:url" content="http://example.com/2024/12/07/MAR/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="前注diffusion部分用的ddim, 所以等我整理完个扩散模型的专题后再详细补完吧:  参照 https:&#x2F;&#x2F;github.com&#x2F;hojonathanho&#x2F;diffusion  Autoregressive Image Generation without Vector Quantization(凯明组出品)今天曲师姐组会分享了这篇文章, 趁热打铁, 过一遍顺便再把code看一下  arxi">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-12-06T16:10:39.000Z">
+<meta property="article:modified_time" content="2024-12-09T14:21:06.435Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-MAR" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/12/07/MAR/" class="article-date">
+  <time class="dt-published" datetime="2024-12-06T16:10:39.000Z" itemprop="datePublished">2024-12-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      MAR
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="前注"><a href="#前注" class="headerlink" title="前注"></a>前注</h1><p>diffusion部分用的ddim, 所以等我整理完个扩散模型的专题后再详细补完吧:</p>
+<ul>
+<li>参照 <a target="_blank" rel="noopener" href="https://github.com/hojonathanho/diffusion">https://github.com/hojonathanho/diffusion</a></li>
+</ul>
+<h1 id="Autoregressive-Image-Generation-without-Vector-Quantization-凯明组出品"><a href="#Autoregressive-Image-Generation-without-Vector-Quantization-凯明组出品" class="headerlink" title="Autoregressive Image Generation without Vector Quantization(凯明组出品)"></a>Autoregressive Image Generation without Vector Quantization(凯明组出品)</h1><p>今天曲师姐组会分享了这篇文章, 趁热打铁, 过一遍顺便再把code看一下</p>
+<ul>
+<li>arxiv: <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2406.11838">https://arxiv.org/abs/2406.11838</a></li>
+<li>github: <a target="_blank" rel="noopener" href="https://github.com/LTH14/mar">https://github.com/LTH14/mar</a><br>其他地方都挺清楚的, 就是在充当小扩散模型的MLP及训练loss有疑问</li>
+</ul>
+<h2 id="Model"><a href="#Model" class="headerlink" title="Model"></a>Model</h2>
+<p><strong>疑问:</strong></p>
+<ol>
+<li>feature_map是离散的, 但扩散后是连续的, 离散时训练的VQ-VAE的decoder会“认账”吗?<ul>
+<li>答: 会</li>
+</ul>
+</li>
+<li>Sec. 3.2中<mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -1.469ex;" xmlns="http://www.w3.org/2000/svg" width="32.935ex" height="4.07ex" role="img" focusable="false" viewBox="0 -1149.5 14557.4 1799"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="4C" d="M62 -22T47 -22T32 -11Q32 -1 56 24T83 55Q113 96 138 172T180 320T234 473T323 609Q364 649 419 677T531 705Q559 705 578 696T604 671T615 645T618 623V611Q618 582 615 571T598 548Q581 531 558 520T518 509Q503 509 503 520Q503 523 505 536T507 560Q507 590 494 610T452 630Q423 630 410 617Q367 578 333 492T271 301T233 170Q211 123 204 112L198 103L224 102Q281 102 369 79T509 52H523Q535 64 544 87T579 128Q616 152 641 152Q656 152 656 142Q656 101 588 40T433 -22Q381 -22 289 1T156 28L141 29L131 20Q111 0 87 -11Z"></path></g></g><g data-mml-node="mo" transform="translate(690,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path></g><g data-mml-node="mi" transform="translate(1079,0)"><path data-c="1D467" d="M347 338Q337 338 294 349T231 360Q211 360 197 356T174 346T162 335T155 324L153 320Q150 317 138 317Q117 317 117 325Q117 330 120 339Q133 378 163 406T229 440Q241 442 246 442Q271 442 291 425T329 392T367 375Q389 375 411 408T434 441Q435 442 449 442H462Q468 436 468 434Q468 430 463 420T449 399T432 377T418 358L411 349Q368 298 275 214T160 106L148 94L163 93Q185 93 227 82T290 71Q328 71 360 90T402 140Q406 149 409 151T424 153Q443 153 443 143Q443 138 442 134Q425 72 376 31T278 -11Q252 -11 232 6T193 40T155 57Q111 57 76 -3Q70 -11 59 -11H54H41Q35 -5 35 -2Q35 13 93 84Q132 129 225 214T340 322Q352 338 347 338Z"></path></g><g data-mml-node="mo" transform="translate(1544,0)"><path data-c="2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path></g><g data-mml-node="mi" transform="translate(1988.7,0)"><path data-c="1D465" d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"></path></g><g data-mml-node="mo" transform="translate(2560.7,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path></g><g data-mml-node="mo" transform="translate(3227.4,0)"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path></g><g data-mml-node="msub" transform="translate(4283.2,0)"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="1D53C" d="M12 666Q12 675 24 683H582Q590 680 593 672V588Q593 514 591 502T575 490Q567 490 563 495T555 517Q552 556 517 590Q486 623 445 634T340 648H282Q266 636 264 620T260 492V370H277Q329 375 358 391T404 439Q420 480 420 506Q420 529 436 529Q445 529 451 521Q455 517 455 361Q455 333 455 298T456 253Q456 217 453 207T437 197Q420 196 420 217Q420 240 406 270Q377 328 284 335H260V201Q261 174 261 134Q262 73 264 61T278 38Q281 36 282 35H331Q400 35 449 50Q571 93 602 179Q605 203 622 203Q629 203 634 197T640 183Q638 181 624 95T604 3L600 -1H24Q12 5 12 16Q12 35 51 35Q92 38 97 52Q102 60 102 341T97 632Q91 645 51 648Q12 648 12 666ZM137 341Q137 131 136 89T130 37Q129 36 129 35H235Q233 41 231 48L226 61V623L231 635L235 648H129Q132 641 133 638T135 603T137 517T137 341ZM557 603V648H504Q504 646 515 639Q527 634 542 619L557 603ZM420 317V397L406 383Q394 370 380 363L366 355Q373 350 382 346Q400 333 409 328L420 317ZM582 61L586 88Q585 88 582 83Q557 61 526 46L511 37L542 35H577Q577 36 578 39T580 49T582 61Z"></path></g></g><g data-mml-node="TeXAtom" transform="translate(700,-150) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="1D700" d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"></path></g><g data-mml-node="mo" transform="translate(466,0)"><path data-c="2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path></g><g data-mml-node="mi" transform="translate(744,0)"><path data-c="1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"></path></g></g></g><g data-mml-node="mrow" transform="translate(5981.2,0)"><g data-mml-node="mo" transform="translate(0 -0.5)"><path data-c="5B" d="M224 -649V1150H455V1099H275V-598H455V-649H224Z"></path></g><g data-mml-node="msup" transform="translate(472,0)"><g data-mml-node="mrow"><g data-mml-node="mo" transform="translate(0 -0.5)"><path data-c="7C" d="M139 -249H137Q125 -249 119 -235V251L120 737Q130 750 139 750Q152 750 159 735V-235Q151 -249 141 -249H139Z"></path></g><g data-mml-node="mi" transform="translate(278,0)"><path data-c="1D700" d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"></path></g><g data-mml-node="mo" transform="translate(966.2,0)"><path data-c="2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"></path></g><g data-mml-node="msub" transform="translate(1966.4,0)"><g data-mml-node="mi"><path data-c="1D700" d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"></path></g><g data-mml-node="mi" transform="translate(499,-150) scale(0.707)"><path data-c="1D703" d="M35 200Q35 302 74 415T180 610T319 704Q320 704 327 704T339 705Q393 701 423 656Q462 596 462 495Q462 380 417 261T302 66T168 -10H161Q125 -10 99 10T60 63T41 130T35 200ZM383 566Q383 668 330 668Q294 668 260 623T204 521T170 421T157 371Q206 370 254 370L351 371Q352 372 359 404T375 484T383 566ZM113 132Q113 26 166 26Q181 26 198 36T239 74T287 161T335 307L340 324H145Q145 321 136 286T120 208T113 132Z"></path></g></g><g data-mml-node="mo" transform="translate(2847.1,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path></g><g data-mml-node="msub" transform="translate(3236.1,0)"><g data-mml-node="mi"><path data-c="1D465" d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"></path></g><g data-mml-node="mi" transform="translate(605,-150) scale(0.707)"><path data-c="1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"></path></g></g><g data-mml-node="mo" transform="translate(4424.1,0)"><path data-c="2223" d="M139 -249H137Q125 -249 119 -235V251L120 737Q130 750 139 750Q152 750 159 735V-235Q151 -249 141 -249H139Z"></path></g><g data-mml-node="mi" transform="translate(4979.9,0)"><path data-c="1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"></path></g><g data-mml-node="mo" transform="translate(5340.9,0)"><path data-c="2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path></g><g data-mml-node="mi" transform="translate(5785.6,0)"><path data-c="1D467" d="M347 338Q337 338 294 349T231 360Q211 360 197 356T174 346T162 335T155 324L153 320Q150 317 138 317Q117 317 117 325Q117 330 120 339Q133 378 163 406T229 440Q241 442 246 442Q271 442 291 425T329 392T367 375Q389 375 411 408T434 441Q435 442 449 442H462Q468 436 468 434Q468 430 463 420T449 399T432 377T418 358L411 349Q368 298 275 214T160 106L148 94L163 93Q185 93 227 82T290 71Q328 71 360 90T402 140Q406 149 409 151T424 153Q443 153 443 143Q443 138 442 134Q425 72 376 31T278 -11Q252 -11 232 6T193 40T155 57Q111 57 76 -3Q70 -11 59 -11H54H41Q35 -5 35 -2Q35 13 93 84Q132 129 225 214T340 322Q352 338 347 338Z"></path></g><g data-mml-node="mo" transform="translate(6250.6,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path></g><g data-mml-node="mo" transform="translate(6639.6,0) translate(0 -0.5)"><path data-c="7C" d="M139 -249H137Q125 -249 119 -235V251L120 737Q130 750 139 750Q152 750 159 735V-235Q151 -249 141 -249H139Z"></path></g></g><g data-mml-node="mn" transform="translate(6950.6,477.1) scale(0.707)"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"></path></g></g><g data-mml-node="mo" transform="translate(7826.1,0) translate(0 -0.5)"><path data-c="5D" d="M16 1099V1150H247V-649H16V-598H196V1099H16Z"></path></g></g><g data-mml-node="mo" transform="translate(14279.4,0)"><path data-c="2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"></path></g></g></g></svg></mjx-container>到底是个?(你真得好好看看扩散了, 必须得补一篇关于扩散的blog)</li>
+<li>Sec. 3.3中称<mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.566ex;" xmlns="http://www.w3.org/2000/svg" width="22.502ex" height="2.262ex" role="img" focusable="false" viewBox="0 -750 9945.9 1000"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msub"><g data-mml-node="mi"><path data-c="1D467" d="M347 338Q337 338 294 349T231 360Q211 360 197 356T174 346T162 335T155 324L153 320Q150 317 138 317Q117 317 117 325Q117 330 120 339Q133 378 163 406T229 440Q241 442 246 442Q271 442 291 425T329 392T367 375Q389 375 411 408T434 441Q435 442 449 442H462Q468 436 468 434Q468 430 463 420T449 399T432 377T418 358L411 349Q368 298 275 214T160 106L148 94L163 93Q185 93 227 82T290 71Q328 71 360 90T402 140Q406 149 409 151T424 153Q443 153 443 143Q443 138 442 134Q425 72 376 31T278 -11Q252 -11 232 6T193 40T155 57Q111 57 76 -3Q70 -11 59 -11H54H41Q35 -5 35 -2Q35 13 93 84Q132 129 225 214T340 322Q352 338 347 338Z"></path></g><g data-mml-node="mi" transform="translate(498,-150) scale(0.707)"><path data-c="1D456" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"></path></g></g><g data-mml-node="mo" transform="translate(1069.7,0)"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path></g><g data-mml-node="mi" transform="translate(2125.5,0)"><path data-c="1D453" d="M118 -162Q120 -162 124 -164T135 -167T147 -168Q160 -168 171 -155T187 -126Q197 -99 221 27T267 267T289 382V385H242Q195 385 192 387Q188 390 188 397L195 425Q197 430 203 430T250 431Q298 431 298 432Q298 434 307 482T319 540Q356 705 465 705Q502 703 526 683T550 630Q550 594 529 578T487 561Q443 561 443 603Q443 622 454 636T478 657L487 662Q471 668 457 668Q445 668 434 658T419 630Q412 601 403 552T387 469T380 433Q380 431 435 431Q480 431 487 430T498 424Q499 420 496 407T491 391Q489 386 482 386T428 385H372L349 263Q301 15 282 -47Q255 -132 212 -173Q175 -205 139 -205Q107 -205 81 -186T55 -132Q55 -95 76 -78T118 -61Q162 -61 162 -103Q162 -122 151 -136T127 -157L118 -162Z"></path></g><g data-mml-node="mo" transform="translate(2675.5,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path></g><g data-mml-node="msub" transform="translate(3064.5,0)"><g data-mml-node="mi"><path data-c="1D465" d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"></path></g><g data-mml-node="mn" transform="translate(605,-150) scale(0.707)"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path></g></g><g data-mml-node="mo" transform="translate(4073.1,0)"><path data-c="2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path></g><g data-mml-node="msub" transform="translate(4517.7,0)"><g data-mml-node="mi"><path data-c="1D465" d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"></path></g><g data-mml-node="mn" transform="translate(605,-150) scale(0.707)"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"></path></g></g><g data-mml-node="mo" transform="translate(5526.3,0)"><path data-c="2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path></g><g data-mml-node="mo" transform="translate(5970.9,0)"><path data-c="2026" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60ZM525 60Q525 84 542 102T585 120Q609 120 627 104T646 61Q646 36 629 18T586 0T543 17T525 60ZM972 60Q972 84 989 102T1032 120Q1056 120 1074 104T1093 61Q1093 36 1076 18T1033 0T990 17T972 60Z"></path></g><g data-mml-node="mo" transform="translate(7309.6,0)"><path data-c="2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path></g><g data-mml-node="msub" transform="translate(7754.3,0)"><g data-mml-node="mi"><path data-c="1D465" d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"></path></g><g data-mml-node="TeXAtom" transform="translate(605,-150) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="1D456" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"></path></g><g data-mml-node="mo" transform="translate(345,0)"><path data-c="2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"></path></g><g data-mml-node="mn" transform="translate(1123,0)"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path></g></g></g><g data-mml-node="mo" transform="translate(9556.9,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path></g></g></g></svg></mjx-container>, 但事实上进transformer绝对都是离散的z啊, 这个<mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.464ex;" xmlns="http://www.w3.org/2000/svg" width="1.244ex" height="2.059ex" role="img" focusable="false" viewBox="0 -705 550 910"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D453" d="M118 -162Q120 -162 124 -164T135 -167T147 -168Q160 -168 171 -155T187 -126Q197 -99 221 27T267 267T289 382V385H242Q195 385 192 387Q188 390 188 397L195 425Q197 430 203 430T250 431Q298 431 298 432Q298 434 307 482T319 540Q356 705 465 705Q502 703 526 683T550 630Q550 594 529 578T487 561Q443 561 443 603Q443 622 454 636T478 657L487 662Q471 668 457 668Q445 668 434 658T419 630Q412 601 403 552T387 469T380 433Q380 431 435 431Q480 431 487 430T498 424Q499 420 496 407T491 391Q489 386 482 386T428 385H372L349 263Q301 15 282 -47Q255 -132 212 -173Q175 -205 139 -205Q107 -205 81 -186T55 -132Q55 -95 76 -78T118 -61Q162 -61 162 -103Q162 -122 151 -136T127 -157L118 -162Z"></path></g></g></g></svg></mjx-container>又是什么?<h2 id="diffusion-loss"><a href="#diffusion-loss" class="headerlink" title="diffusion loss"></a>diffusion loss</h2></li>
+</ol>
+<p>由于笔者对diffusion-model并不熟悉, 短期内恶补相关知识又不太现实(<strong>一周内必定补全相关blog</strong>, 说到做到), 因此先就事论事一下. </p>
+<p>从整体结构而言, 该项目把<em>parameterized loss</em>(ganloss和diffloss)全与模型本体隔离了<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">torchrun --nproc_per_node=8 --nnodes=4 --node_rank=<span class="variable">${NODE_RANK}</span> --master_addr=<span class="variable">${MASTER_ADDR}</span> --master_port=<span class="variable">${MASTER_PORT}</span> \</span><br><span class="line">main_mar.py \</span><br><span class="line">--img_size 256 --vae_path pretrained_models/vae/kl16.ckpt --vae_embed_dim 16 --vae_stride 16 --patch_size 1 \</span><br><span class="line">--model mar_large --diffloss_d 3 --diffloss_w 1024 \</span><br><span class="line">--epochs 400 --warmup_epochs 100 --batch_size 64 --blr 1.0e-4 --diffusion_batch_mul 4 \</span><br><span class="line">--output_dir <span class="variable">${OUTPUT_DIR}</span> --resume <span class="variable">${OUTPUT_DIR}</span> \</span><br><span class="line">--data_path <span class="variable">${IMAGENET_PATH}</span></span><br></pre></td></tr></table></figure></p>
+<p>由上可见, MLP depth只有“3”</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">DiffLoss</span>(nn.Module):</span><br><span class="line">    <span class="string">"""Diffusion Loss"""</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, target_channels, z_channels, depth, width, num_sampling_steps, grad_checkpointing=<span class="literal">False</span></span>):</span><br><span class="line">        <span class="built_in">super</span>(DiffLoss, <span class="variable language_">self</span>).__init__()</span><br><span class="line">        <span class="variable language_">self</span>.in_channels = target_channels</span><br><span class="line">        <span class="variable language_">self</span>.net = SimpleMLPAdaLN(</span><br><span class="line">            in_channels=target_channels,</span><br><span class="line">            model_channels=width,</span><br><span class="line">            out_channels=target_channels * <span class="number">2</span>,  <span class="comment"># for vlb loss</span></span><br><span class="line">            z_channels=z_channels,</span><br><span class="line">            num_res_blocks=depth,</span><br><span class="line">            grad_checkpointing=grad_checkpointing</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">self</span>.train_diffusion = create_diffusion(timestep_respacing=<span class="string">""</span>, noise_schedule=<span class="string">"cosine"</span>)</span><br><span class="line">        <span class="variable language_">self</span>.gen_diffusion = create_diffusion(timestep_respacing=num_sampling_steps, noise_schedule=<span class="string">"cosine"</span>)</span><br></pre></td></tr></table></figure>
+<p>首先来看<code>self.net</code> ,(附有绘制的总体MLP- diffusion总体结构图)<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleMLPAdaLN</span>(nn.Module):</span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    The MLP for Diffusion Loss.</span></span><br><span class="line"><span class="string">    :param in_channels: channels in the input Tensor.</span></span><br><span class="line"><span class="string">    :param model_channels: base channel count for the model.</span></span><br><span class="line"><span class="string">    :param out_channels: channels in the output Tensor.</span></span><br><span class="line"><span class="string">    :param z_channels: channels in the condition.</span></span><br><span class="line"><span class="string">    :param num_res_blocks: number of residual blocks per downsample.</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params"></span></span><br><span class="line"><span class="params">        self,</span></span><br><span class="line"><span class="params">        in_channels,</span></span><br><span class="line"><span class="params">        model_channels,</span></span><br><span class="line"><span class="params">        out_channels,</span></span><br><span class="line"><span class="params">        z_channels,</span></span><br><span class="line"><span class="params">        num_res_blocks,</span></span><br><span class="line"><span class="params">        grad_checkpointing=<span class="literal">False</span></span></span><br><span class="line"><span class="params">    </span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">self</span>.in_channels = in_channels</span><br><span class="line">        <span class="variable language_">self</span>.model_channels = model_channels</span><br><span class="line">        <span class="variable language_">self</span>.out_channels = out_channels</span><br><span class="line">        <span class="variable language_">self</span>.num_res_blocks = num_res_blocks</span><br><span class="line">        <span class="variable language_">self</span>.grad_checkpointing = grad_checkpointing</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">self</span>.time_embed = TimestepEmbedder(model_channels)</span><br><span class="line">        <span class="variable language_">self</span>.cond_embed = nn.Linear(z_channels, model_channels)</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">self</span>.input_proj = nn.Linear(in_channels, model_channels)</span><br><span class="line"></span><br><span class="line">        res_blocks = []</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(num_res_blocks):</span><br><span class="line">            res_blocks.append(ResBlock(</span><br><span class="line">                model_channels,</span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">self</span>.res_blocks = nn.ModuleList(res_blocks)</span><br><span class="line">        <span class="variable language_">self</span>.final_layer = FinalLayer(model_channels, out_channels)</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">self</span>.initialize_weights()</span><br></pre></td></tr></table></figure><br>下面来看<code>forward</code>部分和扩散部分的总体结构图<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#-----------------------</span></span><br><span class="line"><span class="comment"># DiffLoss forward 部分</span></span><br><span class="line"><span class="comment">#-----------------------</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, target, z, mask=<span class="literal">None</span></span>):</span><br><span class="line">        t = torch.randint(<span class="number">0</span>, <span class="variable language_">self</span>.train_diffusion.num_timesteps, (target.shape[<span class="number">0</span>],), device=target.device)</span><br><span class="line">        model_kwargs = <span class="built_in">dict</span>(c=z)</span><br><span class="line">        loss_dict = <span class="variable language_">self</span>.train_diffusion.training_losses(<span class="variable language_">self</span>.net, target, t, model_kwargs)</span><br><span class="line">        loss = loss_dict[<span class="string">"loss"</span>]</span><br><span class="line">        <span class="keyword">if</span> mask <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            loss = (loss * mask).<span class="built_in">sum</span>() / mask.<span class="built_in">sum</span>()</span><br><span class="line">        <span class="keyword">return</span> loss.mean()</span><br><span class="line"></span><br><span class="line"><span class="comment">#------------------------</span></span><br><span class="line"><span class="comment"># train_diffusion 是什么</span></span><br><span class="line"><span class="comment">#------------------------</span></span><br><span class="line"><span class="variable language_">self</span>.train_diffusion = create_diffusion(timestep_respacing=<span class="string">""</span>, noise_schedule=<span class="string">"cosine"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#-------------------------------------------</span></span><br><span class="line"><span class="comment"># self.train_diffusion.training_losses 是什么</span></span><br><span class="line"><span class="comment">#-------------------------------------------</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SpacedDiffusion</span>(<span class="title class_ inherited__">GaussianDiffusion</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">training_losses</span>(<span class="params"></span></span><br><span class="line"><span class="params">        self, model, *args, **kwargs</span></span><br><span class="line"><span class="params">    </span>):  <span class="comment"># pylint: disable=signature-differs</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>().training_losses(<span class="variable language_">self</span>._wrap_model(model), *args, **kwargs)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">GaussianDiffusion</span>:</span><br><span class="line">	<span class="keyword">def</span> <span class="title function_">training_losses</span>(<span class="params">self, model, x_start, t, model_kwargs=<span class="literal">None</span>, noise=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        Compute training losses for a single timestep.</span></span><br><span class="line"><span class="string">        :param model: the model to evaluate loss on.</span></span><br><span class="line"><span class="string">        :param x_start: the [N x C x ...] tensor of inputs.</span></span><br><span class="line"><span class="string">        :param t: a batch of timestep indices.</span></span><br><span class="line"><span class="string">        :param model_kwargs: if not None, a dict of extra keyword arguments to</span></span><br><span class="line"><span class="string">            pass to the model. This can be used for conditioning.</span></span><br><span class="line"><span class="string">        :param noise: if specified, the specific Gaussian noise to try to remove.</span></span><br><span class="line"><span class="string">        :return: a dict with the key "loss" containing a tensor of shape [N].</span></span><br><span class="line"><span class="string">                 Some mean or variance settings may also have other keys.</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">if</span> model_kwargs <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            model_kwargs = {}</span><br><span class="line">        <span class="keyword">if</span> noise <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            noise = th.randn_like(x_start)</span><br><span class="line">        x_t = <span class="variable language_">self</span>.q_sample(x_start, t, noise=noise)</span><br><span class="line"></span><br><span class="line">        terms = {}</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.loss_type == LossType.KL <span class="keyword">or</span> <span class="variable language_">self</span>.loss_type == LossType.RESCALED_KL:</span><br><span class="line">            terms[<span class="string">"loss"</span>] = <span class="variable language_">self</span>._vb_terms_bpd( <span class="comment">#专门算vb_loss的</span></span><br><span class="line">                model=model, </span><br><span class="line">                x_start=x_start,</span><br><span class="line">                x_t=x_t, </span><br><span class="line">                t=t,</span><br><span class="line">                clip_denoised=<span class="literal">False</span>,</span><br><span class="line">                model_kwargs=model_kwargs,</span><br><span class="line">            )[<span class="string">"output"</span>]</span><br><span class="line">            <span class="keyword">if</span> <span class="variable language_">self</span>.loss_type == LossType.RESCALED_KL:</span><br><span class="line">                terms[<span class="string">"loss"</span>] *= <span class="variable language_">self</span>.num_timesteps</span><br><span class="line">        <span class="keyword">elif</span> <span class="variable language_">self</span>.loss_type == LossType.MSE <span class="keyword">or</span> <span class="variable language_">self</span>.loss_type == LossType.RESCALED_MSE:</span><br><span class="line">            model_output = model(x_t, t, **model_kwargs)</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> <span class="variable language_">self</span>.model_var_type <span class="keyword">in</span> [</span><br><span class="line">                ModelVarType.LEARNED,</span><br><span class="line">                ModelVarType.LEARNED_RANGE,</span><br><span class="line">            ]:</span><br><span class="line">                B, C = x_t.shape[:<span class="number">2</span>]</span><br><span class="line">                <span class="keyword">assert</span> model_output.shape == (B, C * <span class="number">2</span>, *x_t.shape[<span class="number">2</span>:])</span><br><span class="line">                model_output, model_var_values = th.split(model_output, C, dim=<span class="number">1</span>)</span><br><span class="line">                <span class="comment"># Learn the variance using the variational bound, but don't let</span></span><br><span class="line">                <span class="comment"># it affect our mean prediction.</span></span><br><span class="line">                frozen_out = th.cat([model_output.detach(), model_var_values], dim=<span class="number">1</span>)</span><br><span class="line">                terms[<span class="string">"vb"</span>] = <span class="variable language_">self</span>._vb_terms_bpd(</span><br><span class="line">                    model=<span class="keyword">lambda</span> *args, r=frozen_out: r,</span><br><span class="line">                    x_start=x_start,</span><br><span class="line">                    x_t=x_t,</span><br><span class="line">                    t=t,</span><br><span class="line">                    clip_denoised=<span class="literal">False</span>,</span><br><span class="line">                )[<span class="string">"output"</span>]</span><br><span class="line">                <span class="keyword">if</span> <span class="variable language_">self</span>.loss_type == LossType.RESCALED_MSE:</span><br><span class="line">                    <span class="comment"># Divide by 1000 for equivalence with initial implementation.</span></span><br><span class="line">                    <span class="comment"># Without a factor of 1/1000, the VB term hurts the MSE term.</span></span><br><span class="line">                    terms[<span class="string">"vb"</span>] *= <span class="variable language_">self</span>.num_timesteps / <span class="number">1000.0</span></span><br><span class="line"></span><br><span class="line">            target = {</span><br><span class="line">                ModelMeanType.PREVIOUS_X: <span class="variable language_">self</span>.q_posterior_mean_variance(</span><br><span class="line">                    x_start=x_start, x_t=x_t, t=t</span><br><span class="line">                )[<span class="number">0</span>],</span><br><span class="line">                ModelMeanType.START_X: x_start,</span><br><span class="line">                ModelMeanType.EPSILON: noise,</span><br><span class="line">            }[<span class="variable language_">self</span>.model_mean_type]</span><br><span class="line">            <span class="keyword">assert</span> model_output.shape == target.shape == x_start.shape</span><br><span class="line">            terms[<span class="string">"mse"</span>] = mean_flat((target - model_output) ** <span class="number">2</span>)</span><br><span class="line">            <span class="keyword">if</span> <span class="string">"vb"</span> <span class="keyword">in</span> terms:</span><br><span class="line">                terms[<span class="string">"loss"</span>] = terms[<span class="string">"mse"</span>] + terms[<span class="string">"vb"</span>]</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                terms[<span class="string">"loss"</span>] = terms[<span class="string">"mse"</span>]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">raise</span> NotImplementedError(<span class="variable language_">self</span>.loss_type)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> terms</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">create_diffusion</span>(<span class="params"></span></span><br><span class="line"><span class="params">    timestep_respacing,</span></span><br><span class="line"><span class="params">    noise_schedule=<span class="string">"linear"</span>, </span></span><br><span class="line"><span class="params">    use_kl=<span class="literal">False</span>,</span></span><br><span class="line"><span class="params">    sigma_small=<span class="literal">False</span>,</span></span><br><span class="line"><span class="params">    predict_xstart=<span class="literal">False</span>,</span></span><br><span class="line"><span class="params">    learn_sigma=<span class="literal">True</span>,</span></span><br><span class="line"><span class="params">    rescale_learned_sigmas=<span class="literal">False</span>,</span></span><br><span class="line"><span class="params">    diffusion_steps=<span class="number">1000</span></span></span><br><span class="line"><span class="params"></span>):</span><br><span class="line">	<span class="comment">#------------------------------------</span></span><br><span class="line">	<span class="comment"># get_named_beta_schedule: 加噪声策略</span></span><br><span class="line">	<span class="comment">#------------------------------------</span></span><br><span class="line">    betas = gd.get_named_beta_schedule(noise_schedule, diffusion_steps)</span><br><span class="line">    <span class="keyword">if</span> use_kl:</span><br><span class="line">        loss_type = gd.LossType.RESCALED_KL</span><br><span class="line">    <span class="keyword">elif</span> rescale_learned_sigmas:</span><br><span class="line">        loss_type = gd.LossType.RESCALED_MSE</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        loss_type = gd.LossType.MSE</span><br><span class="line">    <span class="keyword">if</span> timestep_respacing <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">or</span> timestep_respacing == <span class="string">""</span>:</span><br><span class="line">        timestep_respacing = [diffusion_steps]</span><br><span class="line">    <span class="keyword">return</span> SpacedDiffusion(</span><br><span class="line">        use_timesteps=space_timesteps(diffusion_steps, timestep_respacing),</span><br><span class="line">        betas=betas,</span><br><span class="line">        model_mean_type=(</span><br><span class="line">            gd.ModelMeanType.EPSILON <span class="keyword">if</span> <span class="keyword">not</span> predict_xstart <span class="keyword">else</span> gd.ModelMeanType.START_X</span><br><span class="line">        ),</span><br><span class="line">        model_var_type=(</span><br><span class="line">            (</span><br><span class="line">                gd.ModelVarType.FIXED_LARGE</span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> sigma_small</span><br><span class="line">                <span class="keyword">else</span> gd.ModelVarType.FIXED_SMALL</span><br><span class="line">            )</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> learn_sigma</span><br><span class="line">            <span class="keyword">else</span> gd.ModelVarType.LEARNED_RANGE</span><br><span class="line">        ),</span><br><span class="line">        loss_type=loss_type</span><br><span class="line">        <span class="comment"># rescale_timesteps=rescale_timesteps,</span></span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SpacedDiffusion</span>(<span class="title class_ inherited__">GaussianDiffusion</span>):</span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    A diffusion process which can skip steps in a base diffusion process.</span></span><br><span class="line"><span class="string">    :param use_timesteps: a collection (sequence or set) of timesteps from the</span></span><br><span class="line"><span class="string">                          original diffusion process to retain.</span></span><br><span class="line"><span class="string">    :param kwargs: the kwargs to create the base diffusion process.</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, use_timesteps, **kwargs</span>):</span><br><span class="line">        <span class="variable language_">self</span>.use_timesteps = <span class="built_in">set</span>(use_timesteps)</span><br><span class="line">        <span class="variable language_">self</span>.timestep_map = []</span><br><span class="line">        <span class="variable language_">self</span>.original_num_steps = <span class="built_in">len</span>(kwargs[<span class="string">"betas"</span>])</span><br><span class="line"></span><br><span class="line">        base_diffusion = GaussianDiffusion(**kwargs)  <span class="comment"># pylint: disable=missing-kwoa</span></span><br><span class="line">        last_alpha_cumprod = <span class="number">1.0</span></span><br><span class="line">        new_betas = []</span><br><span class="line">        <span class="keyword">for</span> i, alpha_cumprod <span class="keyword">in</span> <span class="built_in">enumerate</span>(base_diffusion.alphas_cumprod):</span><br><span class="line">            <span class="keyword">if</span> i <span class="keyword">in</span> <span class="variable language_">self</span>.use_timesteps:</span><br><span class="line">                new_betas.append(<span class="number">1</span> - alpha_cumprod / last_alpha_cumprod)</span><br><span class="line">                last_alpha_cumprod = alpha_cumprod</span><br><span class="line">                <span class="variable language_">self</span>.timestep_map.append(i)</span><br><span class="line">        kwargs[<span class="string">"betas"</span>] = np.array(new_betas)</span><br><span class="line">        <span class="built_in">super</span>().__init__(**kwargs)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">GaussianDiffusion</span>:</span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    Utilities for training and sampling diffusion models.</span></span><br><span class="line"><span class="string">    Original ported from this codebase:</span></span><br><span class="line"><span class="string">    https://github.com/hojonathanho/diffusion/blob/1e0dceb3b3495bbe19116a5e1b3596cd0706c543/diffusion_tf/diffusion_utils_2.py#L42</span></span><br><span class="line"><span class="string">    :param betas: a 1-D numpy array of betas for each diffusion timestep,</span></span><br><span class="line"><span class="string">                  starting at T and going to 1.</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params"></span></span><br><span class="line"><span class="params">        self,</span></span><br><span class="line"><span class="params">        *,</span></span><br><span class="line"><span class="params">        betas,</span></span><br><span class="line"><span class="params">        model_mean_type,</span></span><br><span class="line"><span class="params">        model_var_type,</span></span><br><span class="line"><span class="params">        loss_type</span></span><br><span class="line"><span class="params">    </span>):</span><br><span class="line"></span><br><span class="line">        ...</span><br><span class="line">        <span class="variable language_">self</span>.num_timesteps = <span class="built_in">int</span>(betas.shape[<span class="number">0</span>])</span><br><span class="line">		...</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>对于<code>ResBlock</code>, 整体来看是用dit里adaln那一套作为time_embedder去扩散<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ResBlock</span>(nn.Module):</span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    A residual block that can optionally change the number of channels.</span></span><br><span class="line"><span class="string">    :param channels: the number of input channels.</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params"></span></span><br><span class="line"><span class="params">        self,</span></span><br><span class="line"><span class="params">        channels</span></span><br><span class="line"><span class="params">    </span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        <span class="variable language_">self</span>.channels = channels</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">self</span>.in_ln = nn.LayerNorm(channels, eps=<span class="number">1e-6</span>)</span><br><span class="line">        <span class="variable language_">self</span>.mlp = nn.Sequential(</span><br><span class="line">            nn.Linear(channels, channels, bias=<span class="literal">True</span>),</span><br><span class="line">            nn.SiLU(),</span><br><span class="line">            nn.Linear(channels, channels, bias=<span class="literal">True</span>),</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">self</span>.adaLN_modulation = nn.Sequential(</span><br><span class="line">            nn.SiLU(),</span><br><span class="line">            nn.Linear(channels, <span class="number">3</span> * channels, bias=<span class="literal">True</span>)</span><br><span class="line">        )</span><br></pre></td></tr></table></figure><br>对于其 <code>forward</code> 部分,先贴代码再贴示意图:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">modulate</span>(<span class="params">x, shift, scale</span>):</span><br><span class="line">    <span class="keyword">return</span> x * (<span class="number">1</span> + scale) + shift</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x, y</span>):</span><br><span class="line">	shift_mlp, scale_mlp, gate_mlp = <span class="variable language_">self</span>.adaLN_modulation(y).chunk(<span class="number">3</span>, dim=-<span class="number">1</span>)</span><br><span class="line">	h = modulate(<span class="variable language_">self</span>.in_ln(x), shift_mlp, scale_mlp)</span><br><span class="line">	h = <span class="variable language_">self</span>.mlp(h)</span><br><span class="line">	<span class="keyword">return</span> x + gate_mlp * h</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/12/07/MAR/" data-id="cm5ar5vhg0005ciwihluxavs6" data-title="MAR" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2024/12/09/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%AE%89%E5%85%A8%E5%8F%8A%E8%B6%8A%E7%8B%B1%E6%94%BB%E5%87%BB%E9%98%B2%E5%BE%A1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          多模态大模型安全及越狱攻击防御
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2024/12/06/MoE-Rag-Peft-RLHF-DPO/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">MoE_Rag_Peft_RLHF_DPO</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CNN/" rel="tag">CNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/basical-network/" rel="tag">basical-network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llm/" rel="tag">llm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llm-securaty/" rel="tag">llm-securaty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/object-detection/" rel="tag">object-detection</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/self-supervised/" rel="tag">self-supervised</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81/" rel="tag">多模态</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CNN/" style="font-size: 10px;">CNN</a> <a href="/tags/basical-network/" style="font-size: 10px;">basical-network</a> <a href="/tags/llm/" style="font-size: 20px;">llm</a> <a href="/tags/llm-securaty/" style="font-size: 10px;">llm-securaty</a> <a href="/tags/object-detection/" style="font-size: 15px;">object-detection</a> <a href="/tags/self-supervised/" style="font-size: 10px;">self-supervised</a> <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81/" style="font-size: 15px;">多模态</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/12/">December 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/02/04/torch%E4%B8%AD%E7%9A%84forward-hook/">torch中的forward hook</a>
+          </li>
+        
+          <li>
+            <a href="/2025/01/01/ObjectDetectionRecent20Years/">ObjectDetectionRecent20Years</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/30/playingDINOv2/">playingDINOv2</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/30/CNN-surveys/">CNN-surveys</a>
+          </li>
+        
+          <li>
+            <a href="/2024/12/10/%E5%B0%8F%E6%A0%B7%E6%9C%AC%E5%92%8Cllm/">小样本和llm</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+</body>
+</html>
