@@ -13,8 +13,19 @@
 
 ## 状态
 
-- 主页技术栈待定（候选：纯 HTML/CSS、Jekyll）。
-- 仓库刚完成 workspace 文档初始化，尚无主页源码。
+- 主页技术栈：Astro + Tailwind CSS，基于 `rubzip/academic-portfolio-astro` 模板改造。
+- 当前内容源来自 `external/resume/resume_chinese.tex`。
+- 部署目标：GitHub Pages user site（`https://HeShiLie.github.io/`）。
+
+## 本地开发
+
+```bash
+npm install
+npm run dev
+npm run build
+```
+
+本地开发服务器默认运行在 `http://localhost:4321`。
 
 ## 工作方式
 

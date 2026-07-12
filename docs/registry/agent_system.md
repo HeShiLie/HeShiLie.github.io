@@ -62,6 +62,7 @@ Reference material loaded on demand.
 
 | ID | Topic | Path |
 |----|-------|------|
+| `adr:homepage-astro` | Astro chosen for personal academic homepage | `docs/adr/2026-07-12-use-astro-for-homepage.md` |
 
 <!-- Add knowledge as it is created:
 | `knowledge:pipeline` | System architecture | `docs/knowledge/pipeline.md` |

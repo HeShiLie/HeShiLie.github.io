@@ -5,6 +5,7 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
+.history/
 *.swp
 *.swo
 
@@ -21,6 +22,8 @@ build/
 .env.local
 *.key
 credentials.json
+node_modules/
+.astro/
 
 # Large files (add patterns for your project)
 *.pt

@@ -43,3 +43,25 @@ Index of all scripts in this project. Each entry documents purpose, usage, input
 **Usage**: `python evaluate.py --checkpoint outputs/checkpoints/best.pt`
 **Outputs**: `outputs/eval_results.json`
 -->
+
+## npm Scripts
+
+### npm run dev
+**Purpose**: Start the Astro development server.
+**Usage**: `npm run dev`
+**Inputs**: `src/`, `public/`, `astro.config.mjs`, `package.json`
+**Outputs**: Local dev server at `http://localhost:4321`.
+**Notes**: Requires `npm install` first.
+
+### npm run build
+**Purpose**: Build the static site for production.
+**Usage**: `npm run build`
+**Inputs**: Astro source and content files.
+**Outputs**: `dist/`
+**Notes**: Smoke test command for website changes.
+
+### npm run preview
+**Purpose**: Preview the production build locally.
+**Usage**: `npm run preview`
+**Inputs**: `dist/`
+**Outputs**: Local preview server.

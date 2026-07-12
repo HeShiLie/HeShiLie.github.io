@@ -22,15 +22,17 @@ Gaozhe 的个人科研主页，长期在此仓库维护。
 
 ## Quick reference
 ```bash
-# TODO: 主页技术栈待定。确定后在此补充 build / serve / deploy 命令。
-# 候选方向：
-#   open index.html              # 纯 HTML/CSS
-#   bundle exec jekyll serve     # Jekyll (GitHub Pages 原生)
+npm install
+npm run dev
+npm run build
+npm run preview
 ```
 
 ## Key paths
 | Item | Path |
 |------|------|
-| Homepage source | `.` （根目录，具体结构随技术栈而定） |
+| Homepage source | `src/`, `public/`, `astro.config.mjs` |
+| Site content | `src/content/` |
+| Site config | `src/config/` |
 | Workspace docs | `docs/` |
 | Current work state | `docs/working_logs/active.md` |

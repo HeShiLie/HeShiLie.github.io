@@ -30,6 +30,12 @@ Index of all output directories and artifacts produced by this project.
 **Format**: PDF, A4, currently 2 pages
 **Notes**: Generated artifact is ignored by `external/resume/.gitignore`; source of truth is `external/resume/resume_chinese.tex`.
 
+### Astro Site Build
+**Path**: `dist/`
+**Produced by**: `npm run build`
+**Format**: Static HTML/CSS/JS assets for GitHub Pages
+**Notes**: Generated artifact is ignored; source of truth is `src/`, `public/`, and Astro configuration.
+
 <!-- Example:
 ### Model Checkpoints
 **Path**: `outputs/checkpoints/`
