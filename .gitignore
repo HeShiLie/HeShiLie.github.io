@@ -1,0 +1,42 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Environment
+.env
+.env.local
+*.key
+credentials.json
+
+# Large files (add patterns for your project)
+*.pt
+*.pth
+*.ckpt
+*.bin
+*.safetensors
+
+# Data (typically too large for git)
+data/
+datasets/
+outputs/
+
+# Logs
+*.log
+nohup.out
+
+# Claude Code (machine-local settings)
+.claude/settings.local.json
