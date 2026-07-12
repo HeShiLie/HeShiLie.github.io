@@ -7,11 +7,12 @@ last_updated: 2026-07-12
 
 ## Current task
 
-搭建并长期维护 Gaozhe 的个人科研主页。workspace 文档刚初始化完成；主页技术栈待定。
+搭建并长期维护 Gaozhe 的个人科研主页。简历更新已完成，主页技术栈待定。
 
 ## Status
 
 - 2026-07-12: 初始化 AI-native workspace —— 脚手架平铺到项目根，新建 git 仓库（`main`），填好 `CLAUDE.md` / `AGENTS.md` / `always.md` / registries。
+- 2026-07-12: 中文简历已更新、验证、归档，`external/resume` 子仓已提交。
 - 主页技术栈尚未确定（候选：纯 HTML/CSS、Jekyll）。
 - 仓库内暂无主页源码、脚本、数据。
 
@@ -21,7 +22,7 @@ last_updated: 2026-07-12
 
 ## Recently completed
 
-<!-- 暂无 -->
+- [`plans/completed/2026-07-12-[before_the_website]先把简历更新到最新.md`](plans/completed/2026-07-12-[before_the_website]先把简历更新到最新.md)
 
 ## Next recommended action
 
