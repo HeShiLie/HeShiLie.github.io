@@ -6,7 +6,6 @@ export type {
     CV,
     BasePage,
     Blog,
-    Project,
     Publication,
     Talk,
     Teaching,

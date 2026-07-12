@@ -21,11 +21,6 @@ export const PAGES: PagesConfig = {
         subtitle: "",
         isActive: false,
     },
-    projects: {
-        title: "Projects",
-        subtitle: "Research systems, benchmarks, and engineering work.",
-        isActive: true,
-    },
     teaching: {
         title: "Teaching",
         subtitle: "",

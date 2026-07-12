@@ -38,11 +38,6 @@ export interface Blog extends BasePage {
   author?: string;
 }
 
-export interface Project extends BasePage {
-  date: string;
-  external_url?: string;
-}
-
 export interface Publication extends BasePage {
   date: string;
   author?: string;

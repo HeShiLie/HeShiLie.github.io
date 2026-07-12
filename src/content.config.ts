@@ -26,17 +26,6 @@ const bio = defineCollection({
     }),
 });
 
-const projects = defineCollection({
-    loader: glob({ pattern: "**/*.md", base: "./src/content/projects" }),
-    schema: z.object({
-        title: z.string(),
-        description: z.string().optional(),
-        tags: z.array(z.string()).optional(),
-        external_url: z.string().optional(),
-        image: z.string().optional(),
-    }),
-});
-
 const cv = defineCollection({
     loader: glob({ pattern: "cv.md", base: "./src/content" }),
     schema: z.object({
@@ -61,6 +50,5 @@ const cv = defineCollection({
 export const collections = {
     'publications': publications,
     'bio': bio,
-    'projects': projects,
     'cv': cv,
 };
