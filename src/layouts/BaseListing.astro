@@ -32,6 +32,8 @@ const sortedEntries = entries.sort((a: any, b: any) => {
         </header>
     )}
 
+    <slot name="before-list" />
+
     <section class="item-list">
         {sortedEntries.map((entry: any) => {
             const item = getListingItem(entry);

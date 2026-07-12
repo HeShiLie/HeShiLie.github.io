@@ -17,6 +17,7 @@ last_updated: 2026-07-12
 - 2026-07-12: homepage 初始化计划已归档；仓库已创建并推送到 `HeShiLie/HeShiLie.github.io`。
 - 2026-07-12: GitHub Pages workflow 初次因 checkout submodule 失败；已改为不拉 submodule，并成功部署。
 - 2026-07-12: 按用户反馈移除 Projects 页面和导航入口。
+- 2026-07-12: Publications 页面新增 News 区块，记录 VideoTIR accepted to ECCV 2026。
 - 本地 dev server: `http://127.0.0.1:4321/`。
 - 线上站点: `https://heshilie.github.io/`。
 
